@@ -20,8 +20,9 @@ model Company {
   password        String           @db.VarChar(255)
   nit             String           @unique @db.VarChar(255)
   role            String           @default("company") @db.VarChar(50)
-  createdAt       DateTime         @db.Timestamp(6)
-  updatedAt       DateTime         @db.Timestamp(6)
+  createdAt       DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamp(6)
+  deleteAt        DateTime?        @db.Timestamp(6)
   projects        Project[]
   collaborators   Collaborator[]
   profilePictures ProfilePicture[]
@@ -34,11 +35,12 @@ model Collaborator {
   name             String             @db.VarChar(255)
   email            String             @unique @db.VarChar(255)
   password         String             @db.VarChar(255)
-  role             CollaboratorRole   @default(COLLABORATOR)
+  role             CollaboratorRole   @default(collaborator)
   companyId        String             @db.Uuid
   occupationId     Int
-  createdAt        DateTime           @db.Timestamp(6)
-  updatedAt        DateTime           @db.Timestamp(6)
+  createdAt        DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime           @updatedAt @db.Timestamp(6)
+  deleteAt         DateTime?          @db.Timestamp(6)
   company          Company            @relation(fields: [companyId], references: [id])
   occupation       Occupation         @relation(fields: [occupationId], references: [id])
   projectTeams     ProjectTeam[]
@@ -65,8 +67,8 @@ model Project {
   goals        String?       @db.Text
   deadline     DateTime      @db.Date
   companyId    String        @db.Uuid
-  createdAt    DateTime      @db.Timestamp(6)
-  updatedAt    DateTime      @db.Timestamp(6)
+  createdAt    DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime      @updatedAt @db.Timestamp(6)
   deletedAt    DateTime?     @db.Timestamp(6)
   status       ProjectStatus
   company      Company       @relation(fields: [companyId], references: [id])
@@ -79,8 +81,8 @@ model ProjectTeam {
   id                String             @id @default(uuid()) @db.Uuid
   projectId         String             @db.Uuid
   leaderId          String             @db.Uuid
-  createdAt         DateTime           @db.Timestamp(6)
-  updatedAt         DateTime           @db.Timestamp(6)
+  createdAt         DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime           @updatedAt @db.Timestamp(6)
   project           Project            @relation(fields: [projectId], references: [id])
   leader            Collaborator       @relation(fields: [leaderId], references: [id])
   teamCollaborators TeamCollaborator[]
@@ -91,7 +93,7 @@ model TeamCollaborator {
   id             String       @id @default(uuid()) @db.Uuid
   teamId         String       @db.Uuid
   collaboratorId String       @db.Uuid
-  createdAt      DateTime     @db.Timestamp(6)
+  createdAt      DateTime     @default(now()) @db.Timestamp(6)
   deletedAt      DateTime?    @db.Timestamp(6)
   projectTeam    ProjectTeam  @relation(fields: [teamId], references: [id])
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
@@ -109,8 +111,8 @@ model Task {
   projectId              String           @db.Uuid
   collaboratorAssignedId String           @db.Uuid
   createdById            String           @db.Uuid
-  createdAt              DateTime         @db.Timestamp(6)
-  updatedAt              DateTime         @db.Timestamp(6)
+  createdAt              DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt              DateTime         @updatedAt @db.Timestamp(6)
   deletedAt              DateTime?        @db.Timestamp(6)
   project                Project          @relation(fields: [projectId], references: [id])
   collaboratorAssigned   Collaborator?     @relation("CollaboratorAssigned", fields: [collaboratorAssignedId], references: [id])
@@ -124,7 +126,7 @@ model TaskOccupation {
   id           String     @id @default(uuid()) @db.Uuid
   taskId       String     @db.Uuid
   occupationId Int
-  createdAt    DateTime   @db.Timestamp(6)
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
   deletedAt    DateTime?  @db.Timestamp(6)
   task         Task       @relation(fields: [taskId], references: [id])
   occupation   Occupation @relation(fields: [occupationId], references: [id])
@@ -136,7 +138,7 @@ model TaskComment {
   comment   String       @db.Text
   taskId    String       @db.Uuid
   madeById  String       @db.Uuid
-  createdAt DateTime     @db.Timestamp(6)
+  createdAt DateTime     @default(now()) @db.Timestamp(6)
   task      Task         @relation(fields: [taskId], references: [id])
   madeBy    Collaborator @relation(fields: [madeById], references: [id])
   @@map("task_comments")
@@ -173,30 +175,30 @@ model Permission {
 }
 
 enum CollaboratorRole {
-  COLLABORATOR
-  LEADER
+  collaborator
+  leader
 }
 
 enum ProjectStatus {
-  ACTIVE
-  COMPLETED
-  ARCHIVED
+  active
+  completed
+  archived
 }
 
 enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
+  low
+  medium
+  high
 }
 
 enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
+  pending
+  in_progress
+  completed
 }
 
 enum PermissionRole {
-  COMPANY
-  LEADER
-  COLLABORATOR
+  company
+  leader
+  collaborator
 }
