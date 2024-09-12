@@ -2,30 +2,88 @@ import { Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
+import { ErrorManager } from 'src/common/filters/error-manager.filter';
 
 
 @Injectable()
 export class CompaniesService {
   constructor(private prisma: PrismaService) {}
 
-  create(createCompanyDto: CreateCompanyDto) {
-   return this.prisma.company.create({data:createCompanyDto });
+  async create(createCompanyDto: CreateCompanyDto) {
+   return this.prisma.company.create({ data:createCompanyDto });
   }
 
-  findAll() {
-    return this.prisma.company.findMany();
+  async findAll() {
+    try {
+      const companies = await this.prisma.company.findMany();
+      
+      if(!companies.length){
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: "Records of company not found"
+        })
+      }
+      return 
+    } catch (error) {
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
   }
 
-  findOne(id: string) {
-    return this.prisma.company.findUnique({ where: { id } });
+  async findOne(id: string) {
+    try {
+      const company = await this.prisma.company.findUnique({ where: { id } });
+      
+      if(!company){
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: "Record of company not found"
+        })
+      }
+
+      return 
+    } catch (error) {
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
   }
 
-  update(id: string, updateCompanyDto: UpdateCompanyDto) {
-    return this.prisma.company.update({ where: { id }, data: updateCompanyDto });
+  async update(id: string, updateCompanyDto: UpdateCompanyDto) {
+    try {
+      const companyUpdated = await this.prisma.company.update({ where: { id, deleteAt: null}, data: updateCompanyDto });
+      if(!companyUpdated){
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: "Record of company not found"
+        })
+      }
+      return {
+        success: true,
+        message: 'Company update successfully'
+      }
+    } catch (error) {
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
   }
 
-  remove(id: string) {
-    return this.prisma.company.delete({ where: { id } });
+  async remove(id: string) {
+    try {
+      const companyDeleted = await this.prisma.company.update({ where: { id , deleteAt: null}, data: {deleteAt: new Date()}});
+      if(!companyDeleted){
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: "Record of company not found"
+        })
+      }
+      return {
+        success: true,
+        message: 'Company deleted successfully'
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      } else {
+        throw ErrorManager.createSignatureError('An unexpected error occurred');
+      }
+    }
   }
   
 }
