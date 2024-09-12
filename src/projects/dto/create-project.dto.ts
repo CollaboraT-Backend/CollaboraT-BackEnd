@@ -5,7 +5,6 @@ import {
   IsOptional,
   IsDate} from 'class-validator';
 
-
 export class CreateProjectDto {
   @IsNotEmpty()
   @IsString()
