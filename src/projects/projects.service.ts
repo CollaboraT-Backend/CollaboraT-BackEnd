@@ -9,51 +9,77 @@ export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto) {
-    return this.prisma.project.create({ data: createProjectDto });
+    try {
+      return await this.prisma.project.create({ data: createProjectDto });
+    } catch (error) {
+      throw new HttpException('Failed to create project', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findAll() {
-    return await this.prisma.project.findMany();
+    try {
+      return await this.prisma.project.findMany();
+    } catch (error) {
+      throw new HttpException('Failed to retrieve projects', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findOne(id: string) {
-    return await this.prisma.project.findMany({
-      where: {
-        id: id,
-        status: 'active',
-      },
-    });
-  }
-  async findOneo(id: string) {
-    return await this.prisma.project.findMany({
-      where: {
-        id: id,
-        status: {
-          not: 'archived',
+    try {
+      const project = await this.prisma.project.findFirst({
+        where: {
+          id: id,
+          status: {
+            not: 'archived',
+          },
         },
-      },
-    });
+      });
+
+      if (!project) {
+        throw new HttpException('Project not found', HttpStatus.NOT_FOUND);
+      }
+
+      return project;
+    } catch (error) {
+      throw new HttpException('Failed to retrieve project', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
+
   async update(id: string, updateProjectDto: UpdateProjectDto) {
-    return await this.prisma.project.update({
-      where: { id },
-      data: updateProjectDto,
-    });
+    try {
+      const updatedProject = await this.prisma.project.update({
+        where: { id },
+        data: updateProjectDto,
+      });
+
+      if (!updatedProject) {
+        throw new HttpException('Project not found', HttpStatus.NOT_FOUND);
+      }
+
+      return updatedProject;
+    } catch (error) {
+      throw new HttpException('Failed to update project', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async remove(id: string) {
-    const projectDeleted = await this.prisma.project.update({
-      where: { id },
-      data: { status: ProjectStatus.archived, deletedAt: new Date() },
-    });
+    try {
+      const projectDeleted = await this.prisma.project.update({
+        where: { id },
+        data: { status: ProjectStatus.archived, deletedAt: new Date() },
+      });
 
-    if (!projectDeleted) {
-      throw new HttpException('Project not found', HttpStatus.BAD_REQUEST);
+      if (!projectDeleted) {
+        throw new HttpException('Project not found', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        status: HttpStatus.OK,
+        message: 'Project deleted successfully',
+      };
+    } catch (error) {
+      throw new HttpException('Failed to delete project', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    return {
-      status: HttpStatus.OK,
-      message: 'Project deleted successfully',
-    };
   }
 }
+

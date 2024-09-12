@@ -16,27 +16,23 @@ export class ProjectsController {
   constructor(private readonly projectService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectService.create(createProjectDto);
+  async create(@Body() createProjectDto: CreateProjectDto) {
+    return await this.projectService.create(createProjectDto);
   }
 
   @Get()
-  findAll() {
-    return this.projectService.findAll();
+  async findAll() {
+    return await this.projectService.findAll();
   }
 
-  @Get(':id/active')
-  findOne(@Param('id') id: string) {
-    return this.projectService.findOne(id);
-  }
   @Get(':id')
-  findOneo(@Param('id') id: string) {
-    return this.projectService.findOneo(id);
+  async findOneo(@Param('id') id: string) {
+    return await this.projectService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectService.update(id, updateProjectDto);
+  async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+    return await this.projectService.update(id, updateProjectDto);
   }
 
   @Delete(':id')
