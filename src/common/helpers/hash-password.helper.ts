@@ -7,14 +7,26 @@ export async function hashPassword(
   configService: ConfigService,
 ) {
   try {
-    const saltRounds = configService.get<number>('HASH_SALT');
-    if (typeof saltRounds !== 'number') {
+    const saltRoundsStr = configService.get<string>('HASH_SALT');
+    
+    if (!saltRoundsStr) {
+      throw new ErrorManager({
+        type: 'INTERNAL_SERVER_ERROR',
+        message: 'Salt rounds no set',
+      });
+    }
+
+    const saltRounds = parseInt(saltRoundsStr, 10);
+
+    if (isNaN(saltRounds)) {
       throw new ErrorManager({
         type: 'INTERNAL_SERVER_ERROR',
         message: 'Invalid salt rounds configuration',
       });
-    }
+    } 
+
     const passwordEncrypted = await bcrypt.hash(password, saltRounds);
+
     return passwordEncrypted;
   } catch (error) {
     if (error instanceof Error) {

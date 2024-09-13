@@ -15,14 +15,14 @@ datasource db {
 
 model Company {
   id              String           @id @default(uuid()) @db.Uuid
-  name            String           @db.VarChar(255)
+  name            String           @unique @db.VarChar(255)
   email           String           @unique @db.VarChar(255)
   password        String           @db.VarChar(255)
   nit             String           @unique @db.VarChar(255)
   role            String           @default("company") @db.VarChar(50)
   createdAt       DateTime         @default(now()) @db.Timestamp(6)
   updatedAt       DateTime         @updatedAt @db.Timestamp(6)
-  deleteAt        DateTime?        @db.Timestamp(6)
+  deletedAt       DateTime?        @db.Timestamp(6)
   projects        Project[]
   collaborators   Collaborator[]
   profilePictures ProfilePicture[]
@@ -40,7 +40,7 @@ model Collaborator {
   occupationId     Int
   createdAt        DateTime           @default(now()) @db.Timestamp(6)
   updatedAt        DateTime           @updatedAt @db.Timestamp(6)
-  deleteAt         DateTime?          @db.Timestamp(6)
+  deletedAt         DateTime?          @db.Timestamp(6)
   company          Company            @relation(fields: [companyId], references: [id])
   occupation       Occupation         @relation(fields: [occupationId], references: [id])
   projectTeams     ProjectTeam[]
@@ -198,6 +198,7 @@ enum TaskStatus {
 }
 
 enum PermissionRole {
+  admin
   company
   leader
   collaborator
