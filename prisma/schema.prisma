@@ -70,7 +70,7 @@ model Project {
   createdAt    DateTime      @default(now()) @db.Timestamp(6)
   updatedAt    DateTime      @updatedAt @db.Timestamp(6)
   deletedAt    DateTime?     @db.Timestamp(6)
-  status       ProjectStatus
+  status       ProjectStatus @default(active)
   company      Company       @relation(fields: [companyId], references: [id])
   projectTeams ProjectTeam[]
   tasks        Task[]
