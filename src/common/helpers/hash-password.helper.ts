@@ -8,7 +8,7 @@ export async function hashPassword(
 ) {
   try {
     const saltRoundsStr = configService.get<string>('HASH_SALT');
-    
+
     if (!saltRoundsStr) {
       throw new ErrorManager({
         type: 'INTERNAL_SERVER_ERROR',
@@ -23,7 +23,7 @@ export async function hashPassword(
         type: 'INTERNAL_SERVER_ERROR',
         message: 'Invalid salt rounds configuration',
       });
-    } 
+    }
 
     const passwordEncrypted = await bcrypt.hash(password, saltRounds);
 
