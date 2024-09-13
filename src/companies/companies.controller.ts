@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
+
+import { UpdatePasswordCompanyDto } from './dto/update-password-company.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('companies')
@@ -24,14 +25,13 @@ export class CompaniesController {
     return this.companyService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
-    return this.companyService.update(id, updateCompanyDto);
+  @Patch('password/:id')
+  update(@Param('id') id: string, @Body() updatePasswordCompanyDto: UpdatePasswordCompanyDto) {
+    return this.companyService.updatePassword(id, updatePasswordCompanyDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.companyService.remove(id);
   }
-  
 }
