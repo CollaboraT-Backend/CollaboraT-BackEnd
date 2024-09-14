@@ -1,102 +1,32 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "CollaboratorRole" AS ENUM ('collaborator', 'leader');
 
-  - You are about to drop the `Collaborator` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Entity` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Occupation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Permission` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ProfilePicture` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Project` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ProjectTeam` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Task` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TaskComment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TaskOccupation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TeamCollaborator` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "ProjectStatus" AS ENUM ('active', 'completed', 'archived');
 
-*/
--- DropForeignKey
-ALTER TABLE "Collaborator" DROP CONSTRAINT "Collaborator_companyId_fkey";
+-- CreateEnum
+CREATE TYPE "TaskPriority" AS ENUM ('low', 'medium', 'high');
 
--- DropForeignKey
-ALTER TABLE "Collaborator" DROP CONSTRAINT "Collaborator_occupationId_fkey";
+-- CreateEnum
+CREATE TYPE "TaskStatus" AS ENUM ('pending', 'in_progress', 'completed');
 
--- DropForeignKey
-ALTER TABLE "Permission" DROP CONSTRAINT "Permission_entityId_fkey";
+-- CreateEnum
+CREATE TYPE "PermissionRole" AS ENUM ('admin', 'company', 'leader', 'collaborator');
 
--- DropForeignKey
-ALTER TABLE "ProfilePicture" DROP CONSTRAINT "ProfilePicture_collaboratorId_fkey";
+-- CreateTable
+CREATE TABLE "companies" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "nit" VARCHAR(255) NOT NULL,
+    "role" VARCHAR(50) NOT NULL DEFAULT 'company',
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(6) NOT NULL,
+    "deletedAt" TIMESTAMP(6),
 
--- DropForeignKey
-ALTER TABLE "ProfilePicture" DROP CONSTRAINT "ProfilePicture_companyId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Project" DROP CONSTRAINT "Project_companyId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ProjectTeam" DROP CONSTRAINT "ProjectTeam_leaderId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ProjectTeam" DROP CONSTRAINT "ProjectTeam_projectId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Task" DROP CONSTRAINT "Task_collaboratorAssignedId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Task" DROP CONSTRAINT "Task_createdById_fkey";
-
--- DropForeignKey
-ALTER TABLE "Task" DROP CONSTRAINT "Task_projectId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TaskComment" DROP CONSTRAINT "TaskComment_madeById_fkey";
-
--- DropForeignKey
-ALTER TABLE "TaskComment" DROP CONSTRAINT "TaskComment_taskId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TaskOccupation" DROP CONSTRAINT "TaskOccupation_occupationId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TaskOccupation" DROP CONSTRAINT "TaskOccupation_taskId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TeamCollaborator" DROP CONSTRAINT "TeamCollaborator_collaboratorId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TeamCollaborator" DROP CONSTRAINT "TeamCollaborator_teamId_fkey";
-
--- DropTable
-DROP TABLE "Collaborator";
-
--- DropTable
-DROP TABLE "Entity";
-
--- DropTable
-DROP TABLE "Occupation";
-
--- DropTable
-DROP TABLE "Permission";
-
--- DropTable
-DROP TABLE "ProfilePicture";
-
--- DropTable
-DROP TABLE "Project";
-
--- DropTable
-DROP TABLE "ProjectTeam";
-
--- DropTable
-DROP TABLE "Task";
-
--- DropTable
-DROP TABLE "TaskComment";
-
--- DropTable
-DROP TABLE "TaskOccupation";
-
--- DropTable
-DROP TABLE "TeamCollaborator";
+    CONSTRAINT "companies_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "collaborators" (
@@ -104,11 +34,12 @@ CREATE TABLE "collaborators" (
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
-    "role" "CollaboratorRole" NOT NULL DEFAULT 'COLLABORATOR',
+    "role" "CollaboratorRole" NOT NULL DEFAULT 'collaborator',
     "companyId" UUID NOT NULL,
     "occupationId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
+    "deletedAt" TIMESTAMP(6),
 
     CONSTRAINT "collaborators_pkey" PRIMARY KEY ("id")
 );
@@ -129,10 +60,10 @@ CREATE TABLE "projects" (
     "goals" TEXT,
     "deadline" DATE NOT NULL,
     "companyId" UUID NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
     "deletedAt" TIMESTAMP(6),
-    "status" "ProjectStatus" NOT NULL,
+    "status" "ProjectStatus" NOT NULL DEFAULT 'active',
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
@@ -142,7 +73,7 @@ CREATE TABLE "project_teams" (
     "id" UUID NOT NULL,
     "projectId" UUID NOT NULL,
     "leaderId" UUID NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
 
     CONSTRAINT "project_teams_pkey" PRIMARY KEY ("id")
@@ -153,7 +84,7 @@ CREATE TABLE "team_collaborators" (
     "id" UUID NOT NULL,
     "teamId" UUID NOT NULL,
     "collaboratorId" UUID NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(6),
 
     CONSTRAINT "team_collaborators_pkey" PRIMARY KEY ("id")
@@ -167,11 +98,11 @@ CREATE TABLE "tasks" (
     "dueDate" DATE NOT NULL,
     "startDate" DATE NOT NULL,
     "priority" "TaskPriority" NOT NULL,
-    "status" "TaskStatus" NOT NULL,
+    "status" "TaskStatus" NOT NULL DEFAULT 'pending',
     "projectId" UUID NOT NULL,
     "collaboratorAssignedId" UUID NOT NULL,
     "createdById" UUID NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
     "deletedAt" TIMESTAMP(6),
 
@@ -183,7 +114,7 @@ CREATE TABLE "task_occupations" (
     "id" UUID NOT NULL,
     "taskId" UUID NOT NULL,
     "occupationId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(6),
 
     CONSTRAINT "task_occupations_pkey" PRIMARY KEY ("id")
@@ -195,7 +126,7 @@ CREATE TABLE "task_comments" (
     "comment" TEXT NOT NULL,
     "taskId" UUID NOT NULL,
     "madeById" UUID NOT NULL,
-    "createdAt" TIMESTAMP(6) NOT NULL,
+    "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "task_comments_pkey" PRIMARY KEY ("id")
 );
@@ -231,6 +162,15 @@ CREATE TABLE "permissions" (
 
     CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "companies_name_key" ON "companies"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "companies_email_key" ON "companies"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "companies_nit_key" ON "companies"("nit");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "collaborators_email_key" ON "collaborators"("email");
