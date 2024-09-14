@@ -9,11 +9,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register/company')
-  register(
+  async register(
     @Body() createCompanyDto: CreateCompanyDto,
   ): Promise<CompanyResponseFormatDto> {
-    return this.authService.registerCompany(createCompanyDto);
+    return await this.authService.registerCompany(createCompanyDto);
   }
+
+  @Post('login')
+  login() {}
 
   //   @Post('login')
   //   async login(@Body() { username, password }: LoginAuthDto) {

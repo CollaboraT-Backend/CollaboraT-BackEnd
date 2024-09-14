@@ -57,6 +57,14 @@ export class CompaniesService {
     }
   }
 
+  async findByEmail(email: string) {
+   
+      return await this.prisma.company.findUnique({
+        where: {email, deletedAt: null},
+      });
+
+  }
+
   async updatePassword(id: string, updateCompanyDto: UpdatePasswordCompanyDto) {
     try {
       const companyToUpdate = await this.prisma.company.findUnique({
@@ -71,7 +79,6 @@ export class CompaniesService {
 
       //Validate previous password
       await validatePassword(updateCompanyDto.oldPassword, companyToUpdate.password); 
-
 
       //Hash new password
       companyToUpdate.password = await hashPassword(updateCompanyDto.newPassword, this.configservice);

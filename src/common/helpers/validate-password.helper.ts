@@ -12,6 +12,7 @@ export async function validatePassword(
         message: 'Invalid credentials',
       });
     }
+    return;
   } catch (error) {
     if (error instanceof Error) {
       throw ErrorManager.createSignatureError(error.message);
