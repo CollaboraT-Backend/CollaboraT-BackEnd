@@ -40,9 +40,9 @@ async function bootstrap() {
 
   //Config Swagger to API Documentation
   const config = new DocumentBuilder()
-    .setTitle('ColLaborat API')
+    .setTitle('Collabora-T API')
     .setDescription(
-      'CollaboraT is a robust platform designed for companies to manage their projects efficiently and collaboratively. Inspired by tools like Jira, our system provides a comprehensive solution for planning, monitoring and executing projects, adapting to the specific needs of each organization.',
+      'Collabora-T is a robust platform designed for companies to manage their projects efficiently and collaboratively. Inspired by tools like Jira, our system provides a comprehensive solution for planning, monitoring and executing projects, adapting to the specific needs of each organization.',
     )
     .setVersion('1.0')
     .addBearerAuth()
