@@ -9,11 +9,13 @@ import { Company } from '@prisma/client';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
 import { plainToClass } from 'class-transformer';
 
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly companiesService: CompaniesService,
     private readonly jwtService: JwtService,
+
   ) {}
 
   async registerCompany(

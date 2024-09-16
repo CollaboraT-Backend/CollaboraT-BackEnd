@@ -1,3 +1,4 @@
+
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
@@ -9,6 +10,7 @@ import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
 
 @UseGuards(JwtAuthGuard)
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -28,4 +30,5 @@ export class AuthController {
     const jwt = this.authService.generateJWT(user);
     return jwt;
   }
+
 }
