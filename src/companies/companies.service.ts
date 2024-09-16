@@ -37,18 +37,6 @@ export class CompaniesService {
     }
   }
 
-  async findAll() {
-    try {
-      return await this.prisma.company.findMany();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw ErrorManager.createSignatureError(error.message);
-      } else {
-        throw ErrorManager.createSignatureError('An unexpected error occurred');
-      }
-    }
-  }
-
   async findOne(id: string) {
     try {
       return await this.prisma.company.findUnique({ where: { id } });

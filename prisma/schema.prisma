@@ -40,9 +40,10 @@ model Collaborator {
   occupationId     Int
   createdAt        DateTime           @default(now()) @db.Timestamp(6)
   updatedAt        DateTime           @updatedAt @db.Timestamp(6)
-  deletedAt         DateTime?          @db.Timestamp(6)
+  deletedAt        DateTime?          @db.Timestamp(6)
   company          Company            @relation(fields: [companyId], references: [id])
   occupation       Occupation         @relation(fields: [occupationId], references: [id])
+  projects         Project[]
   projectTeams     ProjectTeam[]
   tasksAssigned    Task[]             @relation("CollaboratorAssigned")
   tasksCreated     Task[]             @relation("CollaboratorCreated")
@@ -67,11 +68,13 @@ model Project {
   goals        String?       @db.Text
   deadline     DateTime      @db.Date
   companyId    String        @db.Uuid
+  leaderId     String        @db.Uuid
   createdAt    DateTime      @default(now()) @db.Timestamp(6)
   updatedAt    DateTime      @updatedAt @db.Timestamp(6)
   deletedAt    DateTime?     @db.Timestamp(6)
   status       ProjectStatus @default(active)
   company      Company       @relation(fields: [companyId], references: [id])
+  leader       Collaborator  @relation(fields: [leaderId], references: [id])
   projectTeams ProjectTeam[]
   tasks        Task[]
   @@map("projects")

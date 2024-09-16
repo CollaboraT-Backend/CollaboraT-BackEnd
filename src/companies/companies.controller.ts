@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -19,13 +18,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) {}
-  @Get()
-  findAll() {
-    return this.companyService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get('/:id')
+  findAll(@Param('id') id: string) {
     return this.companyService.findOne(id);
   }
 
@@ -40,5 +34,6 @@ export class CompaniesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.companyService.remove(id);
+    
   }
 }

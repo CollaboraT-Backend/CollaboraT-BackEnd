@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -22,9 +23,9 @@ export class ProjectsController {
     return await this.projectService.create(createProjectDto);
   }
 
-  @Get()
-  async findAll() {
-    return await this.projectService.findAll();
+  @Get(':companyId')
+  async findAll(@Param('companyId', ParseUUIDPipe) companyId: string) {
+    return await this.projectService.findAll(companyId);
   }
 
   @Get(':id')
@@ -33,7 +34,10 @@ export class ProjectsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
     return await this.projectService.update(id, updateProjectDto);
   }
 
