@@ -6,6 +6,8 @@ import { ProjectsModule } from './projects/projects.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentsModule } from './comments/comments.module';
 import { AuthModule } from './auth/auth.module';
+import { S3Module } from './s3/s3.module';
+import { ProfilePicturesModule } from './profile-pictures/profile-pictures.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AuthModule } from './auth/auth.module';
     ProjectsModule,
     CommentsModule,
     AuthModule,
+    S3Module,
+    ProfilePicturesModule,
 
   ],
   controllers: [],
