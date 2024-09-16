@@ -17,6 +17,11 @@ crea un archivo .env con los datos para tu base de datos, en una URL, aqui la re
 
 <img width="794" alt="image" src="https://github.com/user-attachments/assets/c5540bc7-fa87-41cb-abfb-7c2f941dd3f3">
 
+Tambien, agregar los siguientes parametros, de valor puedes poner el valor que quieras, preferibemente para el de "salt" dejarlo en 12 y el "jwt-secret" poner un secreto que sea dificil de descifrar
+
+<img width="494" alt="image" src="https://github.com/user-attachments/assets/aa13e083-92e5-4af1-9965-8f4aa4e99f9c">
+
+
 despues de haber creado la base de datos, desde cero usa el comando `npx prisma migrate deploy`. Antes de este, asegurate de no tener nada en la carpeta migrations de prisma
 
 <img width="273" alt="image" src="https://github.com/user-attachments/assets/3247db19-54c9-4e72-acfc-98ee9abce760">
@@ -28,6 +33,8 @@ junto al anterior comando, correr el comando `npx prisma generate`
 <img width="965" alt="image" src="https://github.com/user-attachments/assets/07473be3-ae0d-47a2-859b-3edd98abba59">
 
 si llegaste a este punto sin errores, ya estas casi que listo!
+
+Corre el comando `npm i` en la terminal para instalar las ultimas dependencias que no tengas instaladas del proyecto
 
 una vez hecho lo anterior, corre el comando `npm run start:dev` o `npm run start` si deseas que se te compile el proyecto y te genere el resultado en una carpeta dist.
 

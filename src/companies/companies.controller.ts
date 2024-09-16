@@ -1,10 +1,21 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 
 import { UpdatePasswordCompanyDto } from './dto/update-password-company.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 
 @ApiTags('companies')
+@UseGuards(JwtAuthGuard)
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) {}
