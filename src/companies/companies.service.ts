@@ -16,14 +16,18 @@ export class CompaniesService {
     private readonly configservice: ConfigService,
   ) {}
 
-  async create(createCompanyDto: CreateCompanyDto): Promise<CompanyResponseFormatDto> {
+  async create(
+    createCompanyDto: CreateCompanyDto,
+  ): Promise<CompanyResponseFormatDto> {
     try {
       createCompanyDto.password = await hashPassword(
         createCompanyDto.password,
         this.configservice,
       );
-      const newCompany = await this.prisma.company.create({ data: createCompanyDto });
-      return plainToInstance(CompanyResponseFormatDto,newCompany);
+      const newCompany = await this.prisma.company.create({
+        data: createCompanyDto,
+      });
+      return plainToInstance(CompanyResponseFormatDto, newCompany);
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);
@@ -57,6 +61,12 @@ export class CompaniesService {
     }
   }
 
+  async findByEmail(email: string) {
+    return await this.prisma.company.findUnique({
+      where: { email, deletedAt: null },
+    });
+  }
+
   async updatePassword(id: string, updateCompanyDto: UpdatePasswordCompanyDto) {
     try {
       const companyToUpdate = await this.prisma.company.findUnique({
@@ -70,14 +80,22 @@ export class CompaniesService {
       }
 
       //Validate previous password
-      await validatePassword(updateCompanyDto.oldPassword, companyToUpdate.password); 
-
+      await validatePassword(
+        updateCompanyDto.oldPassword,
+        companyToUpdate.password,
+      );
 
       //Hash new password
-      companyToUpdate.password = await hashPassword(updateCompanyDto.newPassword, this.configservice);
+      companyToUpdate.password = await hashPassword(
+        updateCompanyDto.newPassword,
+        this.configservice,
+      );
 
-      await this.prisma.company.update({where: {id: companyToUpdate.id, deletedAt: null}, data: companyToUpdate})
-      
+      await this.prisma.company.update({
+        where: { id: companyToUpdate.id, deletedAt: null },
+        data: companyToUpdate,
+      });
+
       return {
         success: true,
         message: 'Updated successfully',

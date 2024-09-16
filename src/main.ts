@@ -11,7 +11,7 @@ async function bootstrap() {
   //Configure cors options
   const corsOptionsDelegate = (req: Request, callback: any) => {
     const allowList = [];
-    let corsOptions;
+    let corsOptions: { origin: boolean };
     //evalue origin of request
     if (allowList.indexOf(req.headers['origin']) !== -1) {
       //enable access
