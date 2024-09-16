@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { Company } from '@prisma/client';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CollaboratorResponseFormatDto } from 'src/collaborators/dto/collaborator-response-format.dto';
 import { ApiTags } from '@nestjs/swagger';
