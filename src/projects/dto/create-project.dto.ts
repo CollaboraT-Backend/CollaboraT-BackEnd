@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -18,6 +19,7 @@ export class CreateProjectDto {
   @IsString()
   goals?: string;
 
+  @Type(() => Date)
   @IsNotEmpty()
   @IsDate()
   deadline: Date;

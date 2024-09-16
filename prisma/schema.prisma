@@ -107,7 +107,7 @@ model Task {
   dueDate                DateTime         @db.Date
   startDate              DateTime         @db.Date
   priority               TaskPriority
-  status                 TaskStatus
+  status                 TaskStatus       @default(pending)
   projectId              String           @db.Uuid
   collaboratorAssignedId String           @db.Uuid
   createdById            String           @db.Uuid
@@ -115,7 +115,7 @@ model Task {
   updatedAt              DateTime         @updatedAt @db.Timestamp(6)
   deletedAt              DateTime?        @db.Timestamp(6)
   project                Project          @relation(fields: [projectId], references: [id])
-  collaboratorAssigned   Collaborator?     @relation("CollaboratorAssigned", fields: [collaboratorAssignedId], references: [id])
+  collaboratorAssigned   Collaborator?    @relation("CollaboratorAssigned", fields: [collaboratorAssignedId], references: [id])
   createdBy              Collaborator     @relation("CollaboratorCreated", fields: [createdById], references: [id])
   occupations            TaskOccupation[]
   comments               TaskComment[]
