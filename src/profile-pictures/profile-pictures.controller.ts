@@ -9,7 +9,6 @@ import {
   Delete,
   InternalServerErrorException,
   Get,
-  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from '../s3/s3.service'; // Importa tu servicio de S3
@@ -35,28 +34,21 @@ export class ProfilePictureController {
       }
 
       // Subir la imagen a S3 con el ID del usuario
-      const imageKey = await this.s3Service.uploadImage(
+      const imageUrl = await this.s3Service.uploadImage(
         file,
         body.collaboratorId,
       );
 
-      if (!imageKey) {
+      if (!imageUrl) {
         throw new GatewayTimeoutException('Error uploading image to S3');
       }
 
       // Generar una URL firmada con una fecha de expiración
-      const expirationTime = 432000; // 5 días en segundos
-      const expirationDate = new Date(Date.now() + expirationTime * 1000);
-      const imageUrl = await this.s3Service.generatePresignedUrl(
-        imageKey,
-        expirationTime,
-      );
 
       // Guardar el URL de la imagen y la fecha de expiración en la base de datos
       const savedPicture =
         await this.profilePictureService.uploadProfilePicture({
           imageUrl,
-          expirationDate,
           collaboratorId: body.collaboratorId,
           companyId: body.companyId,
         });
@@ -97,11 +89,10 @@ export class ProfilePictureController {
   }
 
   // ProfilePictureController.ts
-  @Get('/:id')
-  async getCollaboratorPicture(@Param('id') id: string) {
+  @Get()
+  async getCollaboratorPicture(@Body('url') baseUrl: string) {
     try {
-      const key = `${id}-Profile-picture`; // Forma la clave usando el ID del usuario
-      const response = await this.s3Service.generatePresignedUrl(key, 432000); // Expiración de 5 días
+      const response = await this.s3Service.generatePresignedUrlFromBaseUrl(baseUrl, 432000); // Expiración de 5 días
       return {
         imageUrl: response,
       };

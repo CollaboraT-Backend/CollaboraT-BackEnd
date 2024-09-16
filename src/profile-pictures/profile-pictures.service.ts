@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';  // Prisma Service para interactuar con la DB
 import { Prisma, ProfilePicture } from '@prisma/client';
 
@@ -7,14 +7,13 @@ export class ProfilePictureService {
   constructor(private prisma: PrismaService) {}
 
   // Subir una imagen de perfil
-  async uploadProfilePicture(data: { imageUrl: string, expirationDate:Date, collaboratorId?: string, companyId?: string }) {
+  async uploadProfilePicture(data: { imageUrl: string, collaboratorId?: string, companyId?: string }) {
     const { imageUrl, collaboratorId, companyId } = data;
 
     // Validar que se haya proporcionado un collaboratorId o un companyId
     if (!collaboratorId && !companyId) {
-      throw new Error('You must provide either collaboratorId or companyId.');
+      throw new ForbiddenException('You must provide either collaboratorId or companyId.');
     }
-
     // Crear una nueva entrada en la tabla profile_pictures
     const profilePicture = await this.prisma.profilePicture.create({
       data: {
@@ -24,6 +23,7 @@ export class ProfilePictureService {
       },
     });
 
+
     return profilePicture;
   }
 
@@ -32,16 +32,7 @@ export class ProfilePictureService {
       where: { id },
     });
   }
-  
-  async updateProfilePictureUrl(id: string, imageUrl: string, expirationDate: Date): Promise<ProfilePicture> {
-    return this.prisma.profilePicture.update({
-      where: { id },
-      data: {
-        imageUrl,
-        expirationDate,
-      },
-    });
-  }
+
 
   // Actualizar la imagen de perfil
   async updateProfilePicture(id: string, imageUrl: string) {

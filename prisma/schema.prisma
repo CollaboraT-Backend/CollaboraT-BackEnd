@@ -147,7 +147,6 @@ model TaskComment {
 model ProfilePicture {
   id             String        @id @default(uuid()) @db.Uuid
   imageUrl       String        @db.Text
-  expirationDate DateTime?     @db.Timestamp(6)
   collaboratorId String?       @db.Uuid
   companyId      String?       @db.Uuid
   collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id])

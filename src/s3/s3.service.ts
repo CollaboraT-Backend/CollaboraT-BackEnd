@@ -20,7 +20,7 @@ export class S3Service {
     this.bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
   }
 
-  async uploadImage(file: Express.Multer.File, collaboratorId:string): Promise<string> {
+  async uploadImage(file: Express.Multer.File, collaboratorId: string): Promise<string> {
     const key = `${collaboratorId}-Profile-picture`;
     console.log('Uploading file with key:', key); // Verificar la clave generada
   
@@ -32,31 +32,39 @@ export class S3Service {
     };
   
     try {
+      // Subir el archivo a S3
       await this.s3.send(new PutObjectCommand(params));
       console.log('File uploaded successfully to S3');
-      return key;
+      
+      // Construir la URL base de la imagen (sin firmar)
+      const baseUrl = `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${key}`;
+      console.log(baseUrl)
+      return baseUrl; // Retorna la URL base
     } catch (error) {
-      console.error('Error uploading file to S3:', error); // Loguea el error
-      throw new Error('Error uploading file to S3');
+      console.error('Error uploading file to S3:', error); // Loguear el error
+      throw new RequestTimeoutException('Error uploading file to S3');
     }
   }
 
   // Método para generar una URL firmada con una duración específica
   // S3Service.ts
-async generatePresignedUrl(key: string, expiresIn: number): Promise<string> {
-  const command = new GetObjectCommand({
-    Bucket: this.bucketName,
-    Key: key,
-  });
-
-  try {
-    const url = await getSignedUrl(this.s3, command, { expiresIn });
-    return url;
-  } catch (error) {
-    console.error('Error generating presigned URL:', error);
-    throw new RequestTimeoutException('Error generating presigned URL');
+  async generatePresignedUrlFromBaseUrl(baseUrl: string, expiresIn: number): Promise<string> {
+    // Extraer el key de la URL base
+    const key = baseUrl.split('.com/')[1]; // Esto te dará solo la clave después del dominio
+  
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+  
+    try {
+      const url = await getSignedUrl(this.s3, command, { expiresIn });
+      return url;
+    } catch (error) {
+      console.error('Error generating presigned URL:', error);
+      throw new RequestTimeoutException('Error generating presigned URL');
+    }
   }
-}
 
   async deleteImage(key: string) {
     try {
