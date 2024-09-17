@@ -12,13 +12,10 @@ export class CollaboratorsService {
   async create(file: Express.Multer.File, passwordToExcel: string) {
     try {
       // verify if file exist or no it is empty
-      this.filesService.verifyFleExist(file);
+      this.filesService.verifyFileExistsAndHasContent(file);
 
       // parse csv file
       const parsedData = await this.filesService.parserCsv(file.buffer);
-
-      console.log(parsedData);
-      console.log(passwordToExcel);
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);

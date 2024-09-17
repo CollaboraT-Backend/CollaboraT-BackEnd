@@ -5,20 +5,35 @@ import { Readable } from 'stream';
 
 @Injectable()
 export class FilesService {
-  verifyFleExist(file: Express.Multer.File) {
+  verifyFileExistsAndHasContent(file: Express.Multer.File) {
     try {
-      console.log('Buffer Length:', file.buffer.length); // Verifica el tamaño del buffer
-      console.log('Buffer Content:', file.buffer.toString());
       if (!file || !file.buffer || !file.buffer.length) {
         throw new ErrorManager({
-          type: 'NO_CONTENT',
+          type: 'BAD_REQUEST',
           message: 'No file was sent or the file is empty',
         });
       }
       const fileContent = file.buffer.toString().trim();
-      console.log('File Content:', fileContent);
 
       const rows = fileContent.split('\n');
+
+      const rowsOfCollaborator = rows.slice(1);
+
+      // Check if the file has at least 2 rows (header and data)
+
+      if (
+        rows.length <= 1 ||
+        rowsOfCollaborator.length === 0 ||
+        rowsOfCollaborator.every(
+          (rowCollaborator) => rowCollaborator.trim() === '',
+        )
+      ) {
+        throw new ErrorManager({
+          type: 'BAD_REQUEST',
+          message:
+            'The file contains only headers and no user data to process.',
+        });
+      }
 
       return;
     } catch (error) {

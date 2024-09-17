@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
-import {CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 
@@ -38,10 +38,10 @@ export class TasksService {
     }
   }
 
-  async findOne(id: string){
+  async findOne(id: string) {
     try {
       const task = await this.prisma.task.findUnique({
-        where: { id , deletedAt: null},
+        where: { id, deletedAt: null },
       });
 
       if (!task) {
@@ -60,7 +60,7 @@ export class TasksService {
     }
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto){
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
     try {
       const updatedTask = await this.prisma.task.update({
         where: { id },
