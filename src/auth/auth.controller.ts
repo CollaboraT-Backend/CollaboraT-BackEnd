@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { CompanyResponseFormatDto } from 'src/companies/dto/company-response-format.dto';
@@ -7,6 +15,8 @@ import { Request } from 'express';
 import { Company } from '@prisma/client';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CollaboratorResponseFormatDto } from 'src/collaborators/dto/collaborator-response-format.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard)
@@ -17,11 +27,22 @@ export class AuthController {
 
   @Public()
   @Post('register/companies')
-  async register(
+  async registerCompany(
     @Body() createCompanyDto: CreateCompanyDto,
   ): Promise<CompanyResponseFormatDto> {
     return await this.authService.registerCompany(createCompanyDto);
   }
+
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('register/companies/collaborators')
+  async registerCollaborators(
+    @UploadedFile('file') file: Express.Multer.File,
+    @Body() body: { password: string },
+  ) {
+    const passwordToExcel: string = body.password;
+    return await this.authService.registerCollaborators(file, passwordToExcel);
+  }
+
   @Public()
   @UseGuards(AuthGuard('localStrategy'))
   @Post('login')

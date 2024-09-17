@@ -7,11 +7,19 @@ import { Readable } from 'stream';
 export class FilesService {
   verifyFleExist(file: Express.Multer.File) {
     try {
-      if (!file || !file.buffer || !file.buffer.length)
+      console.log('Buffer Length:', file.buffer.length); // Verifica el tamaño del buffer
+      console.log('Buffer Content:', file.buffer.toString());
+      if (!file || !file.buffer || !file.buffer.length) {
         throw new ErrorManager({
           type: 'NO_CONTENT',
-          message: 'No file was sent the file is empty',
+          message: 'No file was sent or the file is empty',
         });
+      }
+      const fileContent = file.buffer.toString().trim();
+      console.log('File Content:', fileContent);
+
+      const rows = fileContent.split('\n');
+
       return;
     } catch (error) {
       if (error instanceof Error) {
@@ -34,7 +42,7 @@ export class FilesService {
         .pipe(csv())
         .on('data', (row) => results.push(row))
         .on('end', () => resolve(results))
-        .on('end', (error) => reject(error));
+        .on('error', (error) => reject(error));
     });
   }
 }

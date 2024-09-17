@@ -7,5 +7,6 @@ import { FilesModule } from 'src/files/files.module';
   imports: [FilesModule],
   controllers: [CollaboratorsController],
   providers: [CollaboratorsService],
+  exports: [CollaboratorsService],
 })
 export class CollaboratorsModule {}

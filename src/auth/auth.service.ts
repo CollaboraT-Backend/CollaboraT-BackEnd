@@ -8,20 +8,27 @@ import { validatePassword } from 'src/common/helpers/validate-password.helper';
 import { Company } from '@prisma/client';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
 import { plainToClass } from 'class-transformer';
-
+import { CollaboratorsService } from 'src/collaborators/collaborators.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly companiesService: CompaniesService,
+    private readonly collaboratorsService: CollaboratorsService,
     private readonly jwtService: JwtService,
-
   ) {}
 
   async registerCompany(
     createCompanyDto: CreateCompanyDto,
   ): Promise<CompanyResponseFormatDto> {
     return this.companiesService.create(createCompanyDto);
+  }
+
+  async registerCollaborators(
+    file: Express.Multer.File,
+    passwordToExcel: string,
+  ) {
+    return this.collaboratorsService.create(file, passwordToExcel);
   }
 
   async validateUser(email: string, password: string) {

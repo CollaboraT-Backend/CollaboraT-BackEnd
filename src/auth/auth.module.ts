@@ -7,11 +7,13 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
 
 @Global()
 @Module({
   imports: [
     CompaniesModule,
+    CollaboratorsModule,
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
