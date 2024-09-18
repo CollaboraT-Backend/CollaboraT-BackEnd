@@ -27,8 +27,9 @@ export class AuthService {
   async registerCollaborators(
     file: Express.Multer.File,
     passwordToExcel: string,
+    companyId: string,
   ) {
-    return this.collaboratorsService.create(file, passwordToExcel);
+    return this.collaboratorsService.create(file, passwordToExcel, companyId);
   }
 
   async validateUser(email: string, password: string) {

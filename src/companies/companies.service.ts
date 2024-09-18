@@ -24,6 +24,7 @@ export class CompaniesService {
         createCompanyDto.password,
         this.configservice,
       );
+      createCompanyDto.email = createCompanyDto.email.toLocaleLowerCase();
       const newCompany = await this.prisma.company.create({
         data: createCompanyDto,
       });
@@ -51,7 +52,7 @@ export class CompaniesService {
 
   async findByEmail(email: string) {
     return await this.prisma.company.findUnique({
-      where: { email, deletedAt: null },
+      where: { email: email.toLocaleLowerCase(), deletedAt: null },
     });
   }
 

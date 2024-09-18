@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Param,
+  ParseUUIDPipe,
   Post,
   Req,
   UploadedFile,
@@ -17,8 +19,6 @@ import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CollaboratorResponseFormatDto } from 'src/collaborators/dto/collaborator-response-format.dto';
-import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('auth')
@@ -35,13 +35,18 @@ export class AuthController {
   }
 
   @UseInterceptors(FileInterceptor('file'))
-  @Post('register/companies/collaborators')
+  @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
     @UploadedFile('file') file: Express.Multer.File,
     @Body() body: { password: string },
+    @Param('companyId', ParseUUIDPipe) companyId: string,
   ) {
     const passwordToExcel: string = body.password;
-    return await this.authService.registerCollaborators(file, passwordToExcel);
+    return await this.authService.registerCollaborators(
+      file,
+      passwordToExcel,
+      companyId,
+    );
   }
 
   @Public()
