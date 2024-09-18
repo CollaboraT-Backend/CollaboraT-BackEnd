@@ -41,6 +41,7 @@ export class OccupationsService {
   //     throw ErrorManager.createSignatureError('An unexpected error occurred');
   //   }
   // }
+
   //buscar todas las tareas deacuerdo a la ocupacion
   async getOccupationIdByName(name: string){
     const occupation = await this.prisma.occupation.findFirst({
