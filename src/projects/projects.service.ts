@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, Param } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
@@ -22,9 +22,11 @@ export class ProjectsService {
     }
   }
 
-  async findAll() {
+  async findAll(companyId: string): Promise<Project[] | null> {
     try {
-      return await this.prisma.project.findMany();
+      return await this.prisma.project.findMany({
+        where: { companyId, deletedAt: null },
+      });
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(

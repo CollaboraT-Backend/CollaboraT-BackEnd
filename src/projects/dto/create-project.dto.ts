@@ -4,7 +4,8 @@ import {
   IsString,
   IsUUID,
   IsOptional,
-  IsDate} from 'class-validator';
+  IsDate,
+} from 'class-validator';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -27,4 +28,8 @@ export class CreateProjectDto {
   @IsNotEmpty()
   @IsUUID()
   companyId: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  leaderId: string;
 }
