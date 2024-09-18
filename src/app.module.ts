@@ -8,6 +8,7 @@ import { CommentsModule } from './comments/comments.module';
 import { AuthModule } from './auth/auth.module';
 import { S3Module } from './s3/s3.module';
 import { ProfilePicturesModule } from './profile-pictures/profile-pictures.module';
+import { OccupationsModule } from './occupations/occupations.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ProfilePicturesModule } from './profile-pictures/profile-pictures.modul
     AuthModule,
     S3Module,
     ProfilePicturesModule,
+    OccupationsModule,
 
   ],
   controllers: [],
