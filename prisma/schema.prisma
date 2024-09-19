@@ -39,7 +39,6 @@ model Collaborator {
   occupation       Occupation         @relation(fields: [occupationId], references: [id])
   profilePictures  ProfilePicture[]
   projects         Project[]
-  projectTeams     ProjectTeam[]
   TaskComment      TaskComment[]
   tasksAssigned    Task[]             @relation("CollaboratorAssigned")
   tasksCreated     Task[]             @relation("CollaboratorCreated")
@@ -64,6 +63,7 @@ model Project {
   goals        String?
   deadline     DateTime      @db.Date
   companyId    String        @db.Uuid
+  leaderId     String        @db.Uuid
   createdAt    DateTime      @default(now()) @db.Timestamp(6)
   updatedAt    DateTime      @updatedAt @db.Timestamp(6)
   deletedAt    DateTime?     @db.Timestamp(6)
@@ -79,10 +79,8 @@ model Project {
 model ProjectTeam {
   id                String             @id @default(uuid()) @db.Uuid
   projectId         String             @db.Uuid
-  leaderId          String             @db.Uuid
   createdAt         DateTime           @default(now()) @db.Timestamp(6)
   updatedAt         DateTime           @updatedAt @db.Timestamp(6)
-  leader            Collaborator       @relation(fields: [leaderId], references: [id])
   project           Project            @relation(fields: [projectId], references: [id])
   teamCollaborators TeamCollaborator[]
 

@@ -14,6 +14,7 @@ import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { hashPassword } from 'src/common/helpers/hash-password.helper';
 import { ConfigService } from '@nestjs/config';
+import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
 
   async registerCollaborators(
     file: Express.Multer.File,
-    passwordToExcel: string,
+    passwordToExcel: HasPasswordDto,
     companyId: string,
   ) {
     return this.collaboratorsService.create(file, passwordToExcel, companyId);

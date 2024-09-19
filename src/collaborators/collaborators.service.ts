@@ -11,8 +11,8 @@ import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import validator from 'validator';
 import { CollaboratorFormatToExcel } from './dto/collaborator-format-to-excel.dto';
 import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
-import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
+import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 
 @Injectable()
 export class CollaboratorsService {
@@ -26,7 +26,7 @@ export class CollaboratorsService {
   ) {}
   async create(
     file: Express.Multer.File,
-    passwordToExcel: string,
+    passwordToExcel: HasPasswordDto,
     companyId: string,
   ) {
     try {
@@ -54,9 +54,9 @@ export class CollaboratorsService {
 
       // Register users
       const registeredUsers = await this.createUsers(rowsWithData, companyId);
-      console.log(registeredUsers);
 
       // Generate excel
+      return this.filesService.generateExcel(registeredUsers, passwordToExcel);
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);

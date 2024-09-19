@@ -5,17 +5,16 @@ import {
   ParseUUIDPipe,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { CompanyResponseFormatDto } from 'src/companies/dto/company-response-format.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Collaborator, Company } from '@prisma/client';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
@@ -41,15 +40,28 @@ export class AuthController {
   @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
     @UploadedFile('file') file: Express.Multer.File,
-    @Body() body: HasPasswordDto,
+    @Body() hasPasswordDto: HasPasswordDto,
     @Param('companyId', ParseUUIDPipe) companyId: string,
+    @Res() res: Response,
   ) {
-    const passwordToExcel: string = body.password;
-    return await this.authService.registerCollaborators(
+    const generatedExcel = await this.authService.registerCollaborators(
       file,
-      passwordToExcel,
+      hasPasswordDto,
       companyId,
     );
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=collaborators.xlsx`,
+    );
+
+    await generatedExcel.xlsx.write(res);
+
+    res.end();
   }
 
   @Public()

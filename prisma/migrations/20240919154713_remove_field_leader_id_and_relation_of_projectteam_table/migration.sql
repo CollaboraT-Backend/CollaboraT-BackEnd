@@ -60,6 +60,7 @@ CREATE TABLE "projects" (
     "goals" TEXT,
     "deadline" DATE NOT NULL,
     "companyId" UUID NOT NULL,
+    "leaderId" UUID NOT NULL,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
     "deletedAt" TIMESTAMP(6),
@@ -72,7 +73,6 @@ CREATE TABLE "projects" (
 CREATE TABLE "project_teams" (
     "id" UUID NOT NULL,
     "projectId" UUID NOT NULL,
-    "leaderId" UUID NOT NULL,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(6) NOT NULL,
 
@@ -98,7 +98,7 @@ CREATE TABLE "tasks" (
     "dueDate" DATE NOT NULL,
     "startDate" DATE NOT NULL,
     "priority" "TaskPriority" NOT NULL,
-    "status" "TaskStatus" NOT NULL,
+    "status" "TaskStatus" NOT NULL DEFAULT 'pending',
     "projectId" UUID NOT NULL,
     "collaboratorAssignedId" UUID NOT NULL,
     "createdById" UUID NOT NULL,
@@ -135,7 +135,6 @@ CREATE TABLE "task_comments" (
 CREATE TABLE "profile_pictures" (
     "id" UUID NOT NULL,
     "imageUrl" TEXT NOT NULL,
-    "expirationDate" TIMESTAMP(6),
     "collaboratorId" UUID,
     "companyId" UUID,
 
@@ -186,7 +185,7 @@ ALTER TABLE "collaborators" ADD CONSTRAINT "collaborators_occupationId_fkey" FOR
 ALTER TABLE "projects" ADD CONSTRAINT "projects_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "project_teams" ADD CONSTRAINT "project_teams_leaderId_fkey" FOREIGN KEY ("leaderId") REFERENCES "collaborators"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "projects" ADD CONSTRAINT "projects_leaderId_fkey" FOREIGN KEY ("leaderId") REFERENCES "collaborators"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "project_teams" ADD CONSTRAINT "project_teams_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

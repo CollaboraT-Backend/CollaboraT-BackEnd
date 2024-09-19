@@ -36,20 +36,21 @@ export class FilesService {
     workbook.created = new Date();
 
     const sheet = workbook.addWorksheet('collaborators');
-    sheet.autoFilter = {
-      from: 'A1',
-      to: 'E1',
-    };
+
+    // sheet.autoFilter = {
+    //   from: 'A1',
+    //   to: 'E1',
+    // };
 
     sheet.columns = [
-      { header: 'Name', key: 'name', width: 100 },
-      { header: 'Email', key: 'email', width: 100 },
-      { header: 'Password', key: 'password', width: 100 },
+      { header: 'Name', key: 'name', width: 30 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Password', key: 'password', width: 30 },
       { header: 'Role', key: 'role', width: 30 },
-      { header: 'Created_at', key: 'createdAt', width: 50 },
+      { header: 'Created_at', key: 'createdAt', width: 30 },
     ];
 
-    for (let collaborator of usersToExcel) {
+    for (const collaborator of usersToExcel) {
       sheet.addRow({
         name: collaborator.name,
         email: collaborator.email,
@@ -61,7 +62,6 @@ export class FilesService {
 
     sheet.protect(hasPasswordDto.password, {
       selectLockedCells: true,
-      selectUnlockedCells: true,
     });
 
     return workbook;
