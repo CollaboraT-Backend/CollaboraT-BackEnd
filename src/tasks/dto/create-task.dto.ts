@@ -6,7 +6,7 @@ import {
   IsDate,
   IsEnum,
 } from 'class-validator';
-import { TaskPriority} from '@prisma/client';
+import { TaskPriority } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class CreateTaskDto {
@@ -17,12 +17,12 @@ export class CreateTaskDto {
   @IsOptional()
   @IsString()
   description?: string;
-  
+
   @Type(() => Date)
   @IsNotEmpty()
   @IsDate()
   dueDate: Date;
-  
+
   @Type(() => Date)
   @IsNotEmpty()
   @IsDate()

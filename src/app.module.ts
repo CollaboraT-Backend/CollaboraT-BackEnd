@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { S3Module } from './s3/s3.module';
 import { ProfilePicturesModule } from './profile-pictures/profile-pictures.module';
 import { OccupationsModule } from './occupations/occupations.module';
+import { FilesModule } from './files/files.module';
+import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { ProjectTemModule } from './project-tem/project-tem.module';
 
 @Module({
@@ -23,8 +25,9 @@ import { ProjectTemModule } from './project-tem/project-tem.module';
     S3Module,
     ProfilePicturesModule,
     OccupationsModule,
+    FilesModule,
+    CollaboratorsModule,
     ProjectTemModule,
-
   ],
   controllers: [],
 })

@@ -8,10 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
-
-import { UpdatePasswordCompanyDto } from './dto/update-password-company.dto';
+import { UpdatePasswordDto } from '../common/dtos/update-password.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
+import { PasswordComparisonPipe } from 'src/common/pipes/password-comparison.pipe';
 
 @ApiTags('companies')
 @UseGuards(JwtAuthGuard)
@@ -24,16 +24,20 @@ export class CompaniesController {
   }
 
   @Patch('password/:id')
-  update(
+  updateCompanyPassword(
     @Param('id') id: string,
-    @Body() updatePasswordCompanyDto: UpdatePasswordCompanyDto,
+    @Body(new PasswordComparisonPipe())
+    updatePasswordCompanyDto: UpdatePasswordDto,
   ) {
-    return this.companyService.updatePassword(id, updatePasswordCompanyDto);
+    return this.companyService.updateCompanyPassword(
+      id,
+      updatePasswordCompanyDto,
+      'company',
+    );
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.companyService.remove(id);
-    
   }
 }

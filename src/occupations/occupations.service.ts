@@ -10,8 +10,7 @@ export class OccupationsService {
   //bucar todas las ocupaciones
   async findAll() {
     try {
-      return await this.prisma.occupation.findMany()
-
+      return await this.prisma.occupation.findMany();
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(
@@ -22,7 +21,7 @@ export class OccupationsService {
     }
   }
   //buscar todas las tareas deacuerdo a la ocupacion
-  async getOccupationIdByName(name: string){
+  async getOccupationIdByName(name: string) {
     const occupation = await this.prisma.occupation.findFirst({
       where: { name },
     });
@@ -51,7 +50,7 @@ export class OccupationsService {
     });
 
     // Obtener los IDs de los colaboradores
-    const collaboratorIds = collaborators.map(c => c.id);
+    const collaboratorIds = collaborators.map((c) => c.id);
 
     // Paso 3: Obtener las tareas asignadas a esos colaboradores
     return this.prisma.task.findMany({
