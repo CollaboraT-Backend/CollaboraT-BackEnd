@@ -21,27 +21,6 @@ export class OccupationsService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
-  //buscar una ocupacion por id
-  // async findOne(id: number){
-  //   try {
-  //     const occupation = await this.prisma.occupation.findUnique({where:{id}});
-
-  //     if (!occupation) {
-  //       throw new ErrorManager({
-  //         type: 'NOT_FOUND',
-  //         message: 'Occupation not found',
-  //       });
-  //     }
-
-  //     return occupation;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw ErrorManager.createSignatureError(error.message);
-  //     }
-  //     throw ErrorManager.createSignatureError('An unexpected error occurred');
-  //   }
-  // }
-
   //buscar todas las tareas deacuerdo a la ocupacion
   async getOccupationIdByName(name: string){
     const occupation = await this.prisma.occupation.findFirst({
@@ -55,7 +34,7 @@ export class OccupationsService {
       where: { occupationId },
     });
   }
-  //paso tres
+ 
   async getTasksByOccupation(occupationName: string) {
     // Paso 1: Obtener el ID de la ocupación
     const occupationId = await this.prisma.occupation.findFirst({
@@ -75,13 +54,6 @@ export class OccupationsService {
     const collaboratorIds = collaborators.map(c => c.id);
 
     // Paso 3: Obtener las tareas asignadas a esos colaboradores
-    const tasks = this.prisma.task.findMany({
-      where: {
-        collaboratorAssignedId: { in: collaboratorIds },
-        status: TaskStatus.pending,
-      },
-    });
-
     return this.prisma.task.findMany({
       where: {
         collaboratorAssignedId: { in: collaboratorIds },
