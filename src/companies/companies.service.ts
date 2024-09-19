@@ -1,19 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdatePasswordCompanyDto } from './dto/update-password-company.dto';
+import { UpdatePasswordDto } from '../common/dtos/update-password.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { hashPassword } from 'src/common/helpers/hash-password.helper';
 import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { CompanyResponseFormatDto } from './dto/company-response-format.dto';
-import { validatePassword } from 'src/common/helpers/validate-password.helper';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class CompaniesService {
   constructor(
     private prisma: PrismaService,
     private readonly configservice: ConfigService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {}
 
   async create(
@@ -52,50 +54,16 @@ export class CompaniesService {
 
   async findByEmail(email: string) {
     return await this.prisma.company.findUnique({
-      where: { email: email.toLocaleLowerCase(), deletedAt: null },
+      where: { email: email.toLocaleLowerCase().trim(), deletedAt: null },
     });
   }
 
-  async updatePassword(id: string, updateCompanyDto: UpdatePasswordCompanyDto) {
-    try {
-      const companyToUpdate = await this.prisma.company.findUnique({
-        where: { id, deletedAt: null },
-      });
-      if (!companyToUpdate) {
-        throw new ErrorManager({
-          type: 'NOT_FOUND',
-          message: 'Record of company not found',
-        });
-      }
-
-      //Validate previous password
-      await validatePassword(
-        updateCompanyDto.oldPassword,
-        companyToUpdate.password,
-      );
-
-      //Hash new password
-      companyToUpdate.password = await hashPassword(
-        updateCompanyDto.newPassword,
-        this.configservice,
-      );
-
-      await this.prisma.company.update({
-        where: { id: companyToUpdate.id, deletedAt: null },
-        data: companyToUpdate,
-      });
-
-      return {
-        success: true,
-        message: 'Updated successfully',
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        throw ErrorManager.createSignatureError(error.message);
-      } else {
-        throw ErrorManager.createSignatureError('An unexpected error occurred');
-      }
-    }
+  async updateCompanyPassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+    userType: 'collaborator' | 'company',
+  ) {
+    return this.authService.updatePassword(id, updatePasswordDto, userType);
   }
 
   async remove(id: string) {

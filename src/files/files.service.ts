@@ -4,6 +4,9 @@ import { Readable } from 'stream';
 import { verifyFileExistsAndHasContent } from 'src/common/helpers/verify-file-exist-and-has-content.helper';
 import { validateKeysCsv } from 'src/common/helpers/validate-keys-csv.helper';
 import { verifyAllRowsHasNecessaryData } from 'src/common/helpers/verify-all-rows-has-necessary-data.helper';
+import { CollaboratorFormatToExcel } from 'src/collaborators/dto/collaborator-format-to-excel.dto';
+import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
+import * as ExcelJs from 'exceljs';
 
 @Injectable()
 export class FilesService {
@@ -21,6 +24,47 @@ export class FilesService {
         .on('end', () => resolve(results))
         .on('error', (error) => reject(error));
     });
+  }
+
+  generateExcel(
+    usersToExcel: CollaboratorFormatToExcel[],
+    hasPasswordDto: HasPasswordDto,
+  ) {
+    const workbook = new ExcelJs.Workbook();
+
+    workbook.creator = 'Collabora-T Inc';
+    workbook.created = new Date();
+
+    const sheet = workbook.addWorksheet('collaborators');
+    sheet.autoFilter = {
+      from: 'A1',
+      to: 'E1',
+    };
+
+    sheet.columns = [
+      { header: 'Name', key: 'name', width: 100 },
+      { header: 'Email', key: 'email', width: 100 },
+      { header: 'Password', key: 'password', width: 100 },
+      { header: 'Role', key: 'role', width: 30 },
+      { header: 'Created_at', key: 'createdAt', width: 50 },
+    ];
+
+    for (let collaborator of usersToExcel) {
+      sheet.addRow({
+        name: collaborator.name,
+        email: collaborator.email,
+        password: collaborator.password,
+        role: collaborator.role,
+        createdAt: collaborator.createdAt,
+      });
+    }
+
+    sheet.protect(hasPasswordDto.password, {
+      selectLockedCells: true,
+      selectUnlockedCells: true,
+    });
+
+    return workbook;
   }
 
   verifyFile(file: Express.Multer.File) {

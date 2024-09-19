@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { CompaniesModule } from 'src/companies/companies.module';
@@ -12,8 +12,8 @@ import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
 @Global()
 @Module({
   imports: [
-    CompaniesModule,
-    CollaboratorsModule,
+    forwardRef(() => CompaniesModule),
+    forwardRef(() => CollaboratorsModule),
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -27,5 +27,6 @@ import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

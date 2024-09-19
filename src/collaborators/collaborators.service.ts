@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CollaboratorRole } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
@@ -10,6 +10,9 @@ import { OccupationsService } from 'src/occupations/occupations.service';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import validator from 'validator';
 import { CollaboratorFormatToExcel } from './dto/collaborator-format-to-excel.dto';
+import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
+import { AuthModule } from 'src/auth/auth.module';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class CollaboratorsService {
@@ -17,6 +20,8 @@ export class CollaboratorsService {
     private readonly prisma: PrismaService,
     private readonly filesService: FilesService,
     private readonly occupationsService: OccupationsService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authServices: AuthService,
     private readonly configService: ConfigService,
   ) {}
   async create(
@@ -71,7 +76,7 @@ export class CollaboratorsService {
         for (const user of users) {
           const { name, email, role, occupation } = user;
           //validate email
-          if (!validator.isEmail(email)) {
+          if (!validator.isEmail(email.toLowerCase().trim())) {
             throw new ErrorManager({
               type: 'CONFLICT',
               message: 'The data for registration user is in invalid format',
@@ -148,5 +153,19 @@ export class CollaboratorsService {
       }
       throw ErrorManager.createSignatureError('An unexpected error ocurred');
     }
+  }
+
+  async findByEmail(email: string) {
+    return await this.prisma.collaborator.findUnique({
+      where: { email: email.toLocaleLowerCase().trim(), deletedAt: null },
+    });
+  }
+
+  async updateCollaboratorPassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+    userType: 'collaborator' | 'company',
+  ) {
+    return this.authServices.updatePassword(id, updatePasswordDto, userType);
   }
 }
