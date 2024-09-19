@@ -106,7 +106,7 @@ model Task {
   dueDate                DateTime         @db.Date
   startDate              DateTime         @db.Date
   priority               TaskPriority
-  status                 TaskStatus
+  status                 TaskStatus       @default(pending)
   projectId              String           @db.Uuid
   collaboratorAssignedId String           @db.Uuid
   createdById            String           @db.Uuid
