@@ -27,36 +27,10 @@ export class ProfilePictureController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfilePicture(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { collaboratorId: string; companyId?: string },
+    @Body() body: { collaboratorId?: string; companyId?: string },
   ) {
     try {
-      if (!file.mimetype.startsWith('image/')) {
-        throw new BadRequestException('Only image files are allowed!');
-      }
-
-      // Subir la imagen a S3 con el ID del usuario
-      const imageUrl = await this.s3Service.uploadImage(
-        file,
-        body.collaboratorId,
-      );
-
-      if (!imageUrl) {
-        throw new ErrorManager({
-          type: 'GATEWAY_TIMEOUT',
-          message: 'Error uploading image to S3',
-        });
-      }
-
-      // Generar una URL firmada con una fecha de expiración
-
-      // Guardar el URL de la imagen y la fecha de expiración en la base de datos
-      const savedPictureUrl =
-        await this.profilePictureService.uploadProfilePicture({
-          imageUrl,
-          collaboratorId: body.collaboratorId, //solo debe ser uno de los 2 llenados
-          companyId: body.companyId, //solo debe ser uno de los 2 llenados
-        });
-
+   const savedPictureUrl = await this.profilePictureService.createProfilePicture(file, body)
       return {
         message: 'Image uploaded successfully!',
         data: savedPictureUrl,
@@ -73,18 +47,7 @@ export class ProfilePictureController {
   @Delete()
   async deleteProfilePicture(@Body('collaboratorId') collaboratorId: string) {
     try {
-      const key = `${collaboratorId}-Profile-picture`; // Forma la clave usando el ID del usuario
-      const resultDelete = await this.s3Service.deleteImage(key);
-
-      if (!resultDelete) {
-        throw new GatewayTimeoutException();
-      }
-
-      const resultDatabaseDelete =
-        await this.profilePictureService.deleteProfilePicture(collaboratorId);
-      if (!resultDatabaseDelete) {
-        throw new GatewayTimeoutException();
-      }
+      await this.profilePictureService.deleteProfilePicture(collaboratorId);
 
       return {
         message: 'Image deleted successfully!',

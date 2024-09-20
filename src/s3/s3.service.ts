@@ -20,8 +20,8 @@ export class S3Service {
     this.bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
   }
 
-  async uploadImage(file: Express.Multer.File, collaboratorId: string): Promise<string> {
-    const key = `${collaboratorId}-Profile-picture`;
+  async uploadImage(file: Express.Multer.File, collaboratorId?: string, companyId?: string): Promise<string> {
+    const key = `${collaboratorId || companyId}-Profile-picture`;
     console.log('Uploading file with key:', key); // Verificar la clave generada
   
     const params = {
