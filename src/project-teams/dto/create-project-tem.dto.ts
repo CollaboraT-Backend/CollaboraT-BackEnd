@@ -1,6 +1,6 @@
 import { IsString, IsUUID } from "class-validator";
 
-export class CreateProjectTemDto {
+export class CreateProjectTeamDto {
     @IsString()
     @IsUUID()
     projectId: string;

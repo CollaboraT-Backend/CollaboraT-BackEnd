@@ -1,13 +1,17 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateProjectTemDto } from './dto/create-project-tem.dto';
-import { UpdateProjectTemDto } from './dto/update-project-tem.dto';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateProjectTeamDto } from './dto/create-project-tem.dto';
+import { UpdateProjectTeamDto } from './dto/update-project-tem.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 
 @Injectable()
-export class ProjectTemService {
+export class ProjectTeamsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateProjectTemDto) {
+  async create(data: CreateProjectTeamDto) {
     try {
       return await this.prisma.projectTeam.create({
         data,
@@ -39,7 +43,7 @@ export class ProjectTemService {
     }
   }
 
-  async update(id: string, data: UpdateProjectTemDto) {
+  async update(id: string, data: UpdateProjectTeamDto) {
     try {
       const projectTeam = await this.prisma.projectTeam.findUnique({
         where: { id },
@@ -73,5 +77,4 @@ export class ProjectTemService {
       throw new InternalServerErrorException('Error deleting ProjectTeam');
     }
   }
-  
 }

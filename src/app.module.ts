@@ -11,7 +11,7 @@ import { ProfilePicturesModule } from './profile-pictures/profile-pictures.modul
 import { OccupationsModule } from './occupations/occupations.module';
 import { FilesModule } from './files/files.module';
 import { CollaboratorsModule } from './collaborators/collaborators.module';
-import { ProjectTemModule } from './project-tem/project-tem.module';
+import { ProjectTeamModule } from './project-teams/project-teams.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { ProjectTemModule } from './project-tem/project-tem.module';
     OccupationsModule,
     FilesModule,
     CollaboratorsModule,
-    ProjectTemModule,
+    ProjectTeamModule,
   ],
   controllers: [],
 })

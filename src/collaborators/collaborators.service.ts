@@ -166,6 +166,10 @@ export class CollaboratorsService {
     updatePasswordDto: UpdatePasswordDto,
     userType: 'collaborator' | 'company',
   ) {
-    return this.authServices.updatePassword(id, updatePasswordDto, userType);
+    return await this.authServices.updatePassword(
+      id,
+      updatePasswordDto,
+      userType,
+    );
   }
 }

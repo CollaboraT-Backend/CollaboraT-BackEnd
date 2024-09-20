@@ -21,6 +21,7 @@ import { Public } from 'src/common/decorators/auth-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
+import { CsvFilePipe } from 'src/common/pipes/csv-file.pipe';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('auth')
@@ -39,7 +40,7 @@ export class AuthController {
   @UseInterceptors(FileInterceptor('file'))
   @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
-    @UploadedFile('file') file: Express.Multer.File,
+    @UploadedFile('file', new CsvFilePipe()) file: Express.Multer.File,
     @Body() hasPasswordDto: HasPasswordDto,
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Res() res: Response,

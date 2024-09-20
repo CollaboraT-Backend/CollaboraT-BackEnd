@@ -24,12 +24,12 @@ export class CompaniesController {
   }
 
   @Patch('password/:id')
-  updateCompanyPassword(
+  async updateCompanyPassword(
     @Param('id') id: string,
     @Body(new PasswordComparisonPipe())
     updatePasswordCompanyDto: UpdatePasswordDto,
   ) {
-    return this.companyService.updateCompanyPassword(
+    return await this.companyService.updateCompanyPassword(
       id,
       updatePasswordCompanyDto,
       'company',

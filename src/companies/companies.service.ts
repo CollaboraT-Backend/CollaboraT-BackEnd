@@ -63,7 +63,11 @@ export class CompaniesService {
     updatePasswordDto: UpdatePasswordDto,
     userType: 'collaborator' | 'company',
   ) {
-    return this.authService.updatePassword(id, updatePasswordDto, userType);
+    return await this.authService.updatePassword(
+      id,
+      updatePasswordDto,
+      userType,
+    );
   }
 
   async remove(id: string) {

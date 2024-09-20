@@ -23,11 +23,20 @@ export class TasksService {
 
   async findAll() {
     try {
-      return await this.prisma.task.findMany({
+      const allTask = await this.prisma.task.findMany({
         where: {
           deletedAt: null, // filtra las tareas que no estan eliminadas
         },
       });
+
+      if (!allTask.length) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Tasks not found',
+        });
+      }
+
+      return allTask;
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(
@@ -61,9 +70,13 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto) {
+    //Corregir -> collaborardor normal puede -> actualizar el estado
+    //Corregir -> leader puede -> name, descriptions, fechas de inicio - fin,
+    //prioridad, estado y colaborador asignado
+
     try {
       const updatedTask = await this.prisma.task.update({
-        where: { id },
+        where: { id, deletedAt: null },
         data: updateTaskDto,
       });
 
@@ -86,7 +99,7 @@ export class TasksService {
   async remove(id: string): Promise<{ success: boolean; message: string }> {
     try {
       const taskDeleted = await this.prisma.task.update({
-        where: { id },
+        where: { id, deletedAt: null },
         data: { deletedAt: new Date() },
       });
 

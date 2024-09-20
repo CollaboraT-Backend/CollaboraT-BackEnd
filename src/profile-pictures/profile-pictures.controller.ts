@@ -13,6 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from '../s3/s3.service'; // Importa tu servicio de S3
 import { ProfilePictureService } from './profile-pictures.service'; // Servicio para manejar la lógica de base de datos
+import { ErrorManager } from 'src/common/filters/error-manager.filter';
 
 @Controller('profile-pictures')
 export class ProfilePictureController {
@@ -40,25 +41,31 @@ export class ProfilePictureController {
       );
 
       if (!imageUrl) {
-        throw new GatewayTimeoutException('Error uploading image to S3');
+        throw new ErrorManager({
+          type: 'GATEWAY_TIMEOUT',
+          message: 'Error uploading image to S3',
+        });
       }
 
       // Generar una URL firmada con una fecha de expiración
 
       // Guardar el URL de la imagen y la fecha de expiración en la base de datos
-      const savedPicture =
+      const savedPictureUrl =
         await this.profilePictureService.uploadProfilePicture({
           imageUrl,
-          collaboratorId: body.collaboratorId,
-          companyId: body.companyId,
+          collaboratorId: body.collaboratorId, //solo debe ser uno de los 2 llenados
+          companyId: body.companyId, //solo debe ser uno de los 2 llenados
         });
 
       return {
         message: 'Image uploaded successfully!',
-        data: savedPicture,
+        data: savedPictureUrl,
       };
     } catch (error) {
-      throw new BadRequestException(error);
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      }
+      throw ErrorManager.createSignatureError('An unexpected error ocurred');
     }
   }
 
@@ -92,7 +99,10 @@ export class ProfilePictureController {
   @Get()
   async getCollaboratorPicture(@Body('url') baseUrl: string) {
     try {
-      const response = await this.s3Service.generatePresignedUrlFromBaseUrl(baseUrl, 432000); // Expiración de 5 días
+      const response = await this.s3Service.generatePresignedUrlFromBaseUrl(
+        baseUrl,
+        432000,
+      ); // Expiración de 5 días
       return {
         imageUrl: response,
       };
