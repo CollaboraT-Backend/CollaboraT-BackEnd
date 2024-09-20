@@ -1,13 +1,14 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdatePasswordDto } from '../common/dtos/update-password.dto';
-import { PrismaService } from 'src/prisma-service/prisma-service.service';
-import { ErrorManager } from 'src/common/filters/error-manager.filter';
-import { hashPassword } from 'src/common/helpers/hash-password.helper';
+import { PrismaService } from '../prisma-service/prisma-service.service';
+import { ErrorManager } from '../common/filters/error-manager.filter';
+import { hashPassword } from '../common/helpers/hash-password.helper';
 import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { CompanyResponseFormatDto } from './dto/company-response-format.dto';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
+import { validatePassword } from '../common/helpers/validate-password.helper';
 
 @Injectable()
 export class CompaniesService {
