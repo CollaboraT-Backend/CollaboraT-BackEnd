@@ -165,7 +165,7 @@ model Entity {
   @@map("entites")
 }
 
-model Permission {
+model Permission  {
   id        String         @id @default(uuid()) @db.Uuid
   role      PermissionRole
   entityId  Int

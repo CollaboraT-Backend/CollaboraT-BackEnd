@@ -37,11 +37,6 @@ export class FilesService {
 
     const sheet = workbook.addWorksheet('collaborators');
 
-    // sheet.autoFilter = {
-    //   from: 'A1',
-    //   to: 'E1',
-    // };
-
     sheet.columns = [
       { header: 'Name', key: 'name', width: 30 },
       { header: 'Email', key: 'email', width: 30 },
