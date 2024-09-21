@@ -76,22 +76,10 @@ model Project {
   @@map("projects")
 }
 
-model ProjectTeam {
-  id                String             @id @default(uuid()) @db.Uuid
-  
-  createdAt         DateTime           @default(now()) @db.Timestamp(6)
-  updatedAt         DateTime           @updatedAt @db.Timestamp(6)
-  
-  
-
-  @@map("project_teams")
-}
-
 model TeamCollaborator {
   id             String       @id @default(uuid()) @db.Uuid
-  teamId         String       @db.Uuid
   collaboratorId String       @db.Uuid
-  projectId      String             @db.Uuid
+  projectId      String       @db.Uuid
   createdAt      DateTime     @default(now()) @db.Timestamp(6)
   deletedAt      DateTime?    @db.Timestamp(6)
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
