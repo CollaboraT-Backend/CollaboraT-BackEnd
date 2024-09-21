@@ -33,7 +33,7 @@ export class OccupationsService {
       where: { occupationId },
     });
   }
- 
+
   async getTasksByOccupation(occupationName: string) {
     // Paso 1: Obtener el ID de la ocupación
     const occupationId = await this.prisma.occupation.findFirst({

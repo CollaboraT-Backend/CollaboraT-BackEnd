@@ -68,21 +68,21 @@ model Project {
   updatedAt    DateTime      @updatedAt @db.Timestamp(6)
   deletedAt    DateTime?     @db.Timestamp(6)
   status       ProjectStatus @default(active)
-  projectTeams ProjectTeam[]
   company      Company       @relation(fields: [companyId], references: [id])
   leader       Collaborator  @relation(fields: [leaderId], references: [id])
   tasks        Task[]
+  teamCollaborators TeamCollaborator[]
 
   @@map("projects")
 }
 
 model ProjectTeam {
   id                String             @id @default(uuid()) @db.Uuid
-  projectId         String             @db.Uuid
+  
   createdAt         DateTime           @default(now()) @db.Timestamp(6)
   updatedAt         DateTime           @updatedAt @db.Timestamp(6)
-  project           Project            @relation(fields: [projectId], references: [id])
-  teamCollaborators TeamCollaborator[]
+  
+  
 
   @@map("project_teams")
 }
@@ -91,10 +91,11 @@ model TeamCollaborator {
   id             String       @id @default(uuid()) @db.Uuid
   teamId         String       @db.Uuid
   collaboratorId String       @db.Uuid
+  projectId      String             @db.Uuid
   createdAt      DateTime     @default(now()) @db.Timestamp(6)
   deletedAt      DateTime?    @db.Timestamp(6)
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
-  projectTeam    ProjectTeam  @relation(fields: [teamId], references: [id])
+  project        Project      @relation(fields: [projectId], references: [id])
 
   @@map("team_collaborators")
 }
