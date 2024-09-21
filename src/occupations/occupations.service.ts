@@ -38,7 +38,7 @@ export class OccupationsService {
       where: { occupationId },
     });
   }
-
+ 
   async getTasksByOccupation(occupationName: string) {
     
     return this.prisma.task.findMany({
