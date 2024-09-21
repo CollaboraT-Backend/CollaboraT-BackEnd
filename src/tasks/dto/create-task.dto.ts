@@ -5,6 +5,7 @@ import {
   IsUUID,
   IsDate,
   IsEnum,
+  IsInt,
 } from 'class-validator';
 import { TaskPriority } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -36,11 +37,15 @@ export class CreateTaskDto {
   @IsUUID()
   projectId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   collaboratorAssignedId: string;
 
   @IsNotEmpty()
   @IsUUID()
   createdById: string;
+
+  @IsNotEmpty()
+  @IsInt()
+  occupationId: number;
 }

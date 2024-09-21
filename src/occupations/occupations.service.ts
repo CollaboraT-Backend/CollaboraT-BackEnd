@@ -28,36 +28,25 @@ export class OccupationsService {
     return occupation ? occupation.id : null;
   }
   //Una vez que tienes el ID de la ocupación, encontrar todos los colaboradores que tienen esa ocupación.
-  async getCollaboratorsByOccupationId(occupationId: number) {
-    return this.prisma.collaborator.findMany({
+  async getAvailableTaskByOccupationId(occupationId: number) {
+    // -> cambiar el parametro por user (fijarse en el controlador de task en ele metodo updateState) y 
+    // projectId(lo necesitas para traer solo tareas por proyecto y no todaaaaaaasssssssssss las tareas que existen)
+    // -> con el occupationid que trae el user, consultar en occupationstask las tareas que tienen esa ocupacionId
+    // -> luego de esas tareas filtra con map o algun array method para sacar solo los taskId
+    // -> Return -> consultar en task con un in de los taskId que obtuviste en los id de las tareas y collaboratorAssignedId:null(que no esten tomadas) y el projectId
+    return this.prisma.taskOccupation.findMany({
       where: { occupationId },
     });
   }
- 
+  
   async getTasksByOccupation(occupationName: string) {
-    // Paso 1: Obtener el ID de la ocupación
-    const occupationId = await this.prisma.occupation.findFirst({
-      where: { name: occupationName },
-    });
-
-    if (!occupationId) {
-      throw new Error('Ocupación no encontrada');
-    }
-
-    // Paso 2: Obtener los colaboradores con esa ocupación
-    const collaborators = await this.prisma.collaborator.findMany({
-      where: { occupationId: occupationId.id },
-    });
-
-    // Obtener los IDs de los colaboradores
-    const collaboratorIds = collaborators.map((c) => c.id);
-
-    // Paso 3: Obtener las tareas asignadas a esos colaboradores
+    
     return this.prisma.task.findMany({
       where: {
-        collaboratorAssignedId: { in: collaboratorIds },
         status: TaskStatus.pending,
+        collaboratorAssignedId:null
       },
+      include: { occupations: true },
     });
   }
 }

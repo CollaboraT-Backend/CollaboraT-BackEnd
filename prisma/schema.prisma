@@ -108,14 +108,14 @@ model Task {
   priority               TaskPriority
   status                 TaskStatus       @default(pending)
   projectId              String           @db.Uuid
-  collaboratorAssignedId String           @db.Uuid
+  collaboratorAssignedId String?          @db.Uuid
   createdById            String           @db.Uuid
   createdAt              DateTime         @default(now()) @db.Timestamp(6)
   updatedAt              DateTime         @updatedAt @db.Timestamp(6)
   deletedAt              DateTime?        @db.Timestamp(6)
   comments               TaskComment[]
   occupations            TaskOccupation[]
-  collaboratorAssigned   Collaborator     @relation("CollaboratorAssigned", fields: [collaboratorAssignedId], references: [id])
+  collaboratorAssigned   Collaborator?     @relation("CollaboratorAssigned", fields: [collaboratorAssignedId], references: [id])
   createdBy              Collaborator     @relation("CollaboratorCreated", fields: [createdById], references: [id])
   project                Project          @relation(fields: [projectId], references: [id])
 

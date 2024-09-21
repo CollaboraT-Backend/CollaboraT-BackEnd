@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
+import { Collaborator, TaskStatus } from '@prisma/client';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Injectable()
 export class TasksService {
@@ -10,7 +12,23 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto) {
     try {
-      return await this.prisma.task.create({ data: createTaskDto });
+      const newTask = await this.prisma.task.create({ 
+        data: {
+          name : createTaskDto.name,
+          description:createTaskDto.description,
+          dueDate: createTaskDto.dueDate,
+          startDate: createTaskDto.startDate,
+          priority : createTaskDto.priority,
+          projectId: createTaskDto.projectId,
+          collaboratorAssignedId: createTaskDto.collaboratorAssignedId,
+          createdById: createTaskDto.createdById
+        } });
+
+      await this.createTaskOccupation(newTask.id,createTaskDto.occupationId)
+    
+      return newTask
+     
+      //cuando se crea una tarea, debes hacer un registro/create/insercion en occupationtask, uasando el id de esa tarea y el ocupationid que te deben pasar
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(
@@ -20,6 +38,25 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
+
+  async createTaskOccupation(taskId:string,occupationId:number) {
+    try {
+      return await this.prisma.taskOccupation.create({ data: {
+        taskId,
+        occupationId,
+      },
+     });
+     
+     } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(
+          `INTERNAL_SERVER_ERROR :: ${error.message}`,
+        );
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+  }
+
 
   async findAll() {
     try {
@@ -70,10 +107,6 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto) {
-    //Corregir -> collaborardor normal puede -> actualizar el estado
-    //Corregir -> leader puede -> name, descriptions, fechas de inicio - fin,
-    //prioridad, estado y colaborador asignado
-
     try {
       const updatedTask = await this.prisma.task.update({
         where: { id, deletedAt: null },
@@ -84,6 +117,29 @@ export class TasksService {
         throw new ErrorManager({
           type: 'NOT_FOUND',
           message: 'Task not found',
+        });
+      }
+
+      return updatedTask;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+  }
+  //update state completed
+  async updateState(id: string, status: UpdateStatusDto, user: any) {
+    try {
+      const updatedTask = await this.prisma.task.update({
+        where: { id, collaboratorAssignedId: user.sub, deletedAt: null },
+        data: status,
+      });
+
+      if (!updatedTask) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Task not found or user not asssigned to this task',
         });
       }
 
