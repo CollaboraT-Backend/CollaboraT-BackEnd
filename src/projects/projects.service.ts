@@ -1,4 +1,4 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
@@ -9,8 +9,8 @@ import { ErrorManager } from 'src/common/filters/error-manager.filter';
 export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
-  //Al crear un proyecto automaticamente despues con el id de este, se debe crear un equipo de trabajo para este proyecto creado(registrar un project teams)
-  //Al crear el proyecto de equipo(project team) automaticamente despues con el id de este nuevo registro y el leader id que proporcionan para
+  //Al crear un proyecto automaticamente despues de crear un proyecto con el id de este, se debe crear un equipo de trabajo para este proyecto creado(registrar un project teams)
+  //Al crear el equipo de proyecto(project team) automaticamente despues con el id de este nuevo registro y el leader id que proporcionan para
   //proyectos(project) se debe crear/agregar el primer miembro de equipo(agregar en team collaborator)
   async create(createProjectDto: CreateProjectDto) {
     try {
@@ -73,11 +73,9 @@ export class ProjectsService {
 
   //Solo las empresas pueden actualizar sus proyectos(permisologia)
   //Si actualizan el lider
-  // - verificar si ese lider ya estuvo como lider en ese proyecto, osea si tiene softdelete
-  //            *si: cambiarlo de nuevo a null para que este disponible
-  //            *no: agregar el nuevo lider a la tabla team collaborator para el equipo de trabajo correspondiente
   // - eliminar(softdelete) de team collaborator al usuario que era el lider hasta ese momento
   // - actualizar proyecto
+  // - agregar el nuevo lider a la tabla team collaborator para el equipo de trabajo de ese proyecto correspondiente
   async update(id: string, updateProjectDto: UpdateProjectDto) {
     try {
       const updatedProject = await this.prisma.project.update({
