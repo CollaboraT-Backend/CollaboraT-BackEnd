@@ -98,7 +98,7 @@ model Task {
   status                 TaskStatus       @default(pending)
   projectId              String           @db.Uuid
   collaboratorAssignedId String?          @db.Uuid
-  occupationId Int
+  occupationId           Int
   createdById            String           @db.Uuid
   createdAt              DateTime         @default(now()) @db.Timestamp(6)
   updatedAt              DateTime         @updatedAt @db.Timestamp(6)
@@ -143,7 +143,7 @@ model Entity {
   @@map("entites")
 }
 
-model Permission {
+model Permission  {
   id        String         @id @default(uuid()) @db.Uuid
   role      PermissionRole
   entityId  Int

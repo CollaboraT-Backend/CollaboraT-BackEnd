@@ -29,7 +29,6 @@ import { MailerService } from './mailer/mailer.service';
     FilesModule,
     CollaboratorsModule,
     TeamCollaboratorsModule,
-    
   ],
   controllers: [],
   providers: [MailerService],

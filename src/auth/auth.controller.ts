@@ -22,6 +22,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 import { CsvFilePipe } from 'src/common/pipes/csv-file.pipe';
+import { PermissionsGuard } from 'src/permissions/permissions.guard';
+import { Rbac } from 'src/common/decorators/rbac.decorator';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('auth')
@@ -37,6 +39,8 @@ export class AuthController {
     return await this.authService.registerCompany(createCompanyDto);
   }
 
+  @Rbac(['company'], 'canCreate', 2)
+  @UseGuards(PermissionsGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
