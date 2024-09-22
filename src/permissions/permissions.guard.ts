@@ -42,12 +42,10 @@ export class PermissionsGuard implements CanActivate {
       }
 
       if (!userRolePermissions[allowed_action]) {
-        if (!allowed_roles.includes(user.role)) {
-          throw new ErrorManager({
-            type: 'FORBIDDEN',
-            message: 'This type of user does not have sufficient permissions',
-          });
-        }
+        throw new ErrorManager({
+          type: 'FORBIDDEN',
+          message: 'This type of user does not have sufficient permissions',
+        });
       }
 
       return true;
