@@ -12,6 +12,7 @@ import { OccupationsModule } from './occupations/occupations.module';
 import { FilesModule } from './files/files.module';
 import { CollaboratorsModule } from './collaborators/collaborators.module';
 import { TeamCollaboratorsModule } from './team-collaborators/team-collaborators.module';
+import { MailerService } from './mailer/mailer.service';
 
 @Module({
   imports: [
@@ -28,7 +29,9 @@ import { TeamCollaboratorsModule } from './team-collaborators/team-collaborators
     FilesModule,
     CollaboratorsModule,
     TeamCollaboratorsModule,
+    
   ],
   controllers: [],
+  providers: [MailerService],
 })
 export class AppModule {}

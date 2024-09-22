@@ -63,9 +63,8 @@ describe('companiesService', () => {
       deletedAt: null,
     };
     it('should create a new company', async () => {
-      jest
-        .spyOn(prismaService.company, 'create')
-        .mockResolvedValue(companyWhatever);
+      jest.spyOn(prismaService.company, 'create').mockResolvedValue(companyWhatever);
+    
       const company = await companyService.create(createCompany);
       expect(company).toMatchObject({
         id: '123',

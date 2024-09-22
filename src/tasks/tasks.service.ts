@@ -3,13 +3,30 @@ import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
-
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService,
+  ) {}
   async create(createTaskDto: CreateTaskDto) {
     try {
+      const response = await this.prisma.collaborator.findUnique({
+        where: { id: createTaskDto.collaboratorAssignedId },
+      });
+
+      const objectToprepare = {
+        to: response.email,
+        name: response.name,
+      };
+      const mailOptions = this.mailerService.prepareMail(objectToprepare);
+      await this.mailerService.sendMail(
+        mailOptions.to,
+        mailOptions.subject,
+        mailOptions.html,
+      );
       return await this.prisma.task.create({ data: createTaskDto });
     } catch (error) {
       if (error instanceof Error) {
