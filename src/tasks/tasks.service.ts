@@ -167,4 +167,49 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
+
+  async assignFreetask(taskId: {id:string}, user: any): Promise<CreateTaskDto> {
+    try {
+      
+      const taskToEdit = await this.prisma.task.findUnique({where: {id: taskId.id}});
+      if (!taskToEdit) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Task not found',
+        });
+    }
+  
+    const collaborator = await this.prisma.collaborator.findUnique({where: {id: user.sub}})
+    console.log(collaborator)
+  
+    if (taskToEdit.occupationId !== collaborator.occupationId) {
+      throw new ErrorManager({
+        type: 'FORBIDDEN',
+        message: 'You are not authorized to assign yourself this kind of tasks!',
+      });
+    }
+  
+  const newTask = {
+    title: taskToEdit.title,
+    description: taskToEdit.description,
+    dueDate: taskToEdit.dueDate,
+    startDate: taskToEdit.startDate,
+    priority: taskToEdit.priority,
+    projectId: taskToEdit.projectId,
+    occupationId: taskToEdit.occupationId,
+    collaboratorAssignedId: user.sub,
+    createdById: taskToEdit.createdById,
+  }
+  
+  return await this.prisma.task.update({where: { id:taskId.id }, data: newTask});
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+
+};
+
+//another task or whatever
 }
