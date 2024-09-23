@@ -16,16 +16,15 @@ export class MailerService {
     // });
 
     this.transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true, // Usar SSL
-        auth: {
-          user: 'collaborat.workspace@gmail.com', // mira man aquí va tu correo de gmail
-          pass: 'hvbq qsoq qadb mngo', // aquí va la contraseña que te dio esa vaina pero sin espacios, yo te recomiendo que esta verega la metas en los .env
-        },
-      });
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // Usar SSL
+      auth: {
+        user: 'collaborat.workspace@gmail.com', // mira man aquí va tu correo de gmail
+        pass: 'hvbq qsoq qadb mngo', // aquí va la contraseña que te dio esa vaina pero sin espacios, yo te recomiendo que esta verega la metas en los .env
+      },
+    });
   }
-
 
   async sendMail(to: string, subject: string, html: string) {
     const mailOptions = {
@@ -34,7 +33,7 @@ export class MailerService {
       subject,
       html,
     };
-  
+
     try {
       const info = await this.transporter.sendMail(mailOptions);
       console.log('Email sent:', info.response);
@@ -43,12 +42,12 @@ export class MailerService {
     }
   }
 
-  prepareMail(mailOptions: {to:string, subject:string, message:string}) {
+  prepareMail(mailOptions: { to: string; subject: string; message: string }) {
     return {
-        from: '"CollaboraT Team" <collaborat.workspace@gmail.com>',
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-        html: `
+      from: '"CollaboraT Team" <collaborat.workspace@gmail.com>',
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: `
     <html>
       <head>
         <style>
@@ -66,7 +65,7 @@ export class MailerService {
         </div>
       </body>
     </html>
-  `}
+  `,
+    };
   }
-  
 }

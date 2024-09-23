@@ -4,7 +4,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { MailerService } from 'src/mailer/mailer.service';
-import { Subject } from 'rxjs';
 
 @Injectable()
 export class TasksService {
@@ -12,50 +11,61 @@ export class TasksService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
   ) {}
-  async create(createTaskDto: CreateTaskDto, user: any): Promise<CreateTaskDto> {
-
-    // Verificamos que el proyecto exista
-    const projectExists = await this.prisma.project.findUnique({
-      where: { id: createTaskDto.projectId },
-    });
-    if (!projectExists) {
-      throw ErrorManager.createSignatureError('Project not found');
-    }
-
-    const userToAssign = await this.prisma.collaborator.findUnique({where: { id: createTaskDto.collaboratorAssignedId}})
-    if (userToAssign.occupationId !== createTaskDto.occupationId) {
-      throw ErrorManager.createSignatureError('The user to assign is not able to make this task!');
-    }
-
-    // Verificamos que el usuario exista
-    const userExists = await this.prisma.collaborator.findUnique({
-      where: { id: user.sub },
-    });
-    if (!userExists) {
-      throw ErrorManager.createSignatureError('User not found');
-    }
-
+  async create(
+    createTaskDto: CreateTaskDto,
+    user: any,
+  ): Promise<CreateTaskDto> {
     try {
-      const response = await this.prisma.collaborator.findUnique({
-        where: { id: createTaskDto.collaboratorAssignedId },
+      // Verificamos que el proyecto exista
+      const projectExists = await this.prisma.project.findUnique({
+        where: { id: createTaskDto.projectId },
       });
-      console.log(response);
-      const objectToprepare = {
-        to: response.email,
-        subject:`Task Assignment`,
-        message:`<p>Hola ${response.name}, te han asignado una tarea!</p>
-        <p>Tarea: <strong>${createTaskDto.title}</strong></p>
-        `
-        
-      };
+      if (!projectExists) {
+        throw ErrorManager.createSignatureError('Project not found');
+      }
+
+      //Verificar si quieren asignar usuario
+      let userToAssign;
+      if (createTaskDto.collaboratorAssignedId) {
+        //buscar el usuaro a asignar
+        userToAssign = await this.prisma.collaborator.findUnique({
+          where: { id: createTaskDto.collaboratorAssignedId },
+        });
+        if (userToAssign.occupationId !== createTaskDto.occupationId) {
+          throw ErrorManager.createSignatureError(
+            'The user to assign is not able to make this task!',
+          );
+        }
+      }
+
+      //Verificamos si el usuario si es lider del proyecto y puede crear tareas
+      if (user.sub !== projectExists.leaderId) {
+        throw ErrorManager.createSignatureError(
+          'The user does not create tasks for this project!',
+        );
+      }
+
+      //Create task
       const result = await this.prisma.task.create({ data: createTaskDto });
 
-      const mailOptions = this.mailerService.prepareMail(objectToprepare);
-      await this.mailerService.sendMail(
-        mailOptions.to,
-        mailOptions.subject,
-        mailOptions.html,
-      );
+      //send notification mail to assigned user
+      if (createTaskDto.collaboratorAssignedId) {
+        const objectToprepare = {
+          to: userToAssign.email,
+          subject: `Task Assignment`,
+          message: `<p>Hola ${userToAssign.name}, te han asignado una tarea!</p>
+          <p>Tarea: <strong>${createTaskDto.title}</strong></p>
+          `,
+        };
+
+        const mailOptions = this.mailerService.prepareMail(objectToprepare);
+        await this.mailerService.sendMail(
+          mailOptions.to,
+          mailOptions.subject,
+          mailOptions.html,
+        );
+      }
+
       return result;
     } catch (error) {
       if (error instanceof Error) {

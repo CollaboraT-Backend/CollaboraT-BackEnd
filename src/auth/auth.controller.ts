@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
-import { CompanyResponseFormatDto } from 'src/companies/dto/company-response-format.dto';
+import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { Collaborator, Company } from '@prisma/client';
@@ -35,7 +35,7 @@ export class AuthController {
   @Post('register/companies')
   async registerCompany(
     @Body() createCompanyDto: CreateCompanyDto,
-  ): Promise<CompanyResponseFormatDto> {
+  ): Promise<UserResponseFormatDto> {
     return await this.authService.registerCompany(createCompanyDto);
   }
 

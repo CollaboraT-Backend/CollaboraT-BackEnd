@@ -4,8 +4,6 @@ export function validateKeysCsv(row: any, expectedKeys: string[]) {
   try {
     const sortedCsvKeys = Object.keys(row).sort();
     const sortedExpectedKeys = expectedKeys.sort();
-    console.log(sortedCsvKeys);
-    console.log(sortedExpectedKeys);
 
     // verify keys as strings
     if (JSON.stringify(sortedCsvKeys) !== JSON.stringify(sortedExpectedKeys)) {
