@@ -4,6 +4,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { MailerService } from 'src/mailer/mailer.service';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class TasksService {
@@ -11,23 +12,51 @@ export class TasksService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
   ) {}
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, user: any): Promise<CreateTaskDto> {
+
+    // Verificamos que el proyecto exista
+    const projectExists = await this.prisma.project.findUnique({
+      where: { id: createTaskDto.projectId },
+    });
+    if (!projectExists) {
+      throw ErrorManager.createSignatureError('Project not found');
+    }
+
+    const userToAssign = await this.prisma.collaborator.findUnique({where: { id: createTaskDto.collaboratorAssignedId}})
+    if (userToAssign.occupationId !== createTaskDto.occupationId) {
+      throw ErrorManager.createSignatureError('The user to assign is not able to make this task!');
+    }
+
+    // Verificamos que el usuario exista
+    const userExists = await this.prisma.collaborator.findUnique({
+      where: { id: user.sub },
+    });
+    if (!userExists) {
+      throw ErrorManager.createSignatureError('User not found');
+    }
+
     try {
       const response = await this.prisma.collaborator.findUnique({
         where: { id: createTaskDto.collaboratorAssignedId },
       });
-
+      console.log(response);
       const objectToprepare = {
         to: response.email,
-        name: response.name,
+        subject:`Task Assignment`,
+        message:`<p>Hola ${response.name}, te han asignado una tarea!</p>
+        <p>Tarea: <strong>${createTaskDto.title}</strong></p>
+        `
+        
       };
+      const result = await this.prisma.task.create({ data: createTaskDto });
+
       const mailOptions = this.mailerService.prepareMail(objectToprepare);
       await this.mailerService.sendMail(
         mailOptions.to,
         mailOptions.subject,
         mailOptions.html,
       );
-      return await this.prisma.task.create({ data: createTaskDto });
+      return result;
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(

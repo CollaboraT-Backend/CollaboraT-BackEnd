@@ -45,7 +45,7 @@ export class CreateTaskDto {
   @IsUUID()
   collaboratorAssignedId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   createdById: string;
 }

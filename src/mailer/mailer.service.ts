@@ -43,11 +43,11 @@ export class MailerService {
     }
   }
 
-  prepareMail(mailOptions) {
+  prepareMail(mailOptions: {to:string, subject:string, message:string}) {
     return {
         from: '"CollaboraT Team" <collaborat.workspace@gmail.com>',
         to: mailOptions.to,
-        subject: 'Te han agregado una tarea nueva',
+        subject: mailOptions.subject,
         html: `
     <html>
       <head>
@@ -62,7 +62,7 @@ export class MailerService {
 
         </div>
         <div class="content">
-          <p>Hola ${mailOptions.name}! Te asignaron tareas en un proyecto.</p>
+          ${mailOptions.message}
         </div>
       </body>
     </html>
