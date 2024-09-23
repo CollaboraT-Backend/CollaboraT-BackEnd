@@ -14,19 +14,18 @@ export class TasksService {
     try {
       const newTask = await this.prisma.task.create({ 
         data: {
-          name : createTaskDto.name,
+          title : createTaskDto.title,
           description:createTaskDto.description,
           dueDate: createTaskDto.dueDate,
           startDate: createTaskDto.startDate,
           priority : createTaskDto.priority,
           projectId: createTaskDto.projectId,
           collaboratorAssignedId: createTaskDto.collaboratorAssignedId,
-          createdById: createTaskDto.createdById
+          createdById: createTaskDto.createdById,
+          occupationId: createTaskDto.occupationId
         } });
 
-      await this.createTaskOccupation(newTask.id,createTaskDto.occupationId)
-    
-      return newTask
+     return newTask
      
       //cuando se crea una tarea, debes hacer un registro/create/insercion en occupationtask, uasando el id de esa tarea y el ocupationid que te deben pasar
     } catch (error) {
@@ -38,25 +37,6 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
-
-  async createTaskOccupation(taskId:string,occupationId:number) {
-    try {
-      return await this.prisma.taskOccupation.create({ data: {
-        taskId,
-        occupationId,
-      },
-     });
-     
-     } catch (error) {
-      if (error instanceof Error) {
-        throw ErrorManager.createSignatureError(
-          `INTERNAL_SERVER_ERROR :: ${error.message}`,
-        );
-      }
-      throw ErrorManager.createSignatureError('An unexpected error occurred');
-    }
-  }
-
 
   async findAll() {
     try {

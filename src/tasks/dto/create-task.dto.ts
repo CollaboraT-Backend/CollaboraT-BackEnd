@@ -13,7 +13,7 @@ import { Type } from 'class-transformer';
 export class CreateTaskDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  title: string;
 
   @IsOptional()
   @IsString()

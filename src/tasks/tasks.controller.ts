@@ -22,7 +22,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
 
-@UseGuards(JwtAuthGuard)
+
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
