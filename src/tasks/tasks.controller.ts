@@ -19,7 +19,7 @@ import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 
-
+@UseGuards(JwtAuthGuard)
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
@@ -46,7 +46,13 @@ export class TasksController {
   @Get('projects')
   async getTasksByOccupation(
     @Query('projectId') projectId: string) {
-    return this.tasksService.findAllProjects(projectId);
+    return this.tasksService.findAllByProjects(projectId);
+  }
+  //buscar todas las tareas por proyecto y collaboratorAssigned:null
+  @Get('collaborator')
+  async getTasksByCollaborator(
+    @Query('projectId') projectId: string) {
+    return this.tasksService.findAllCollaboratorUnassigned(projectId);
   }
   
   @Get(':id')
