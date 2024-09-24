@@ -19,6 +19,7 @@ import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { Request } from 'express';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
+import { CollaboratorRole } from '@prisma/client';
 
 @ApiTags('companies')
 @UseGuards(JwtAuthGuard)
@@ -36,11 +37,6 @@ export class CompaniesController {
     return await this.companyService.findAllCollaborator(user);
   }
 
-  @Get('/:id')
-  findAll(@Param('id') id: string) {
-    return this.companyService.findOne(id);
-  }
-
   @Rbac(['company'], 'canUpdate', 1)
   @UseGuards(PermissionsGuard)
   @Patch('password/:id')
@@ -56,18 +52,38 @@ export class CompaniesController {
     );
   }
 
+  @Rbac(['company'], 'canUpdate', 2)
+  @UseGuards(PermissionsGuard)
+  @Patch('collaborator/:collaboratorId/role')
+  async updateCollaboratorRole(
+    @Param('collaboratorId', new ParseUUIDPipe()) collaboratorId: string,
+    @Body() newRole: CollaboratorRole,
+    @Req() req: Request,
+  ) {
+    const user = req.user as PayloadToken;
+    return await this.companyService.updateCollaboratorRole(
+      collaboratorId,
+      user.sub,
+      newRole,
+    );
+  }
+
   @Rbac(['company'], 'canDelete', 2)
+  @UseGuards(PermissionsGuard)
   @Delete('collaborator/:collaboratorId')
-  removeCollaborator(
+  async removeCollaborator(
     @Param('collaboratorId', new ParseUUIDPipe()) collaboratorId: string,
     @Req() req: Request,
   ) {
     const user = req.user as PayloadToken;
-    return this.companyService.deleteCollaborator(user, collaboratorId);
+    return await this.companyService.deleteCollaborator(user, collaboratorId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.companyService.remove(id);
+  @Rbac(['company'], 'canDelete', 1)
+  @UseGuards(PermissionsGuard)
+  @Delete()
+  async remove(@Req() req: Request) {
+    const user = req.user as PayloadToken;
+    return await this.companyService.remove(user.sub);
   }
 }

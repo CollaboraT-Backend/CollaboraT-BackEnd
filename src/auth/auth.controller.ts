@@ -20,7 +20,6 @@ import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 import { CsvFilePipe } from 'src/common/pipes/csv-file.pipe';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 import { Rbac } from 'src/common/decorators/rbac.decorator';
@@ -45,13 +44,11 @@ export class AuthController {
   @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
     @UploadedFile('file', new CsvFilePipe()) file: Express.Multer.File,
-    @Body() hasPasswordDto: HasPasswordDto,
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Res() res: Response,
   ) {
     const generatedExcel = await this.authService.registerCollaborators(
       file,
-      hasPasswordDto,
       companyId,
     );
 

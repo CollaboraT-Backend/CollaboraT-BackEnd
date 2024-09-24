@@ -41,8 +41,15 @@ export class ProjectsService {
       throw ErrorManager.createSignatureError('An unexpected error ocurred');
     }
   }
-  
-  //pending implementation
+
+  async findAllByLeaderId(leaderId: string, companyId: string) {
+    return await this.prisma.project.findMany({
+      where: { leaderId, companyId, deletedAt: null },
+    });
+  }
+
+  //Crear metodo para empresa, puede ver cualquiera de sus proyectos
+  //Crear metodo para leader(collaborator), puede ver cualquiera de los proyectos en los que es lider
   async findOne(id: string) {
     try {
       const project = await this.prisma.project.findFirst({

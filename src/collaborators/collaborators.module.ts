@@ -6,6 +6,7 @@ import { OccupationsModule } from 'src/occupations/occupations.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { CompaniesModule } from 'src/companies/companies.module';
 import { MailerService } from 'src/mailer/mailer.service';
+import { ProjectsModule } from 'src/projects/projects.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MailerService } from 'src/mailer/mailer.service';
     forwardRef(() => CompaniesModule),
     FilesModule,
     OccupationsModule,
+    ProjectsModule,
   ],
   controllers: [CollaboratorsController],
   providers: [CollaboratorsService, MailerService],

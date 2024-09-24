@@ -19,7 +19,6 @@ export class CommentsService {
 
   async seeCommentsByTask(Taskid: string) {
     const response = await this.prisma.taskComment.findMany({
-      take: 5,
       where: {
         taskId: Taskid,
       },

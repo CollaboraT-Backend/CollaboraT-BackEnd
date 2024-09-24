@@ -10,7 +10,7 @@ async function bootstrap() {
 
   //Configure cors options
   const corsOptionsDelegate = (req: Request, callback: any) => {
-    const allowList = ['http://localhost:4000'];
+    const allowList = ['http://localhost:3000'];
     let corsOptions: { origin: boolean };
     //evalue origin of request
     if (allowList.indexOf(req.headers['origin']) !== -1) {

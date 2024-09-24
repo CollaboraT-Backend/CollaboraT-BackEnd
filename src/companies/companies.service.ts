@@ -10,6 +10,7 @@ import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto'
 import { AuthService } from '../auth/auth.service';
 import { CollaboratorsService } from 'src/collaborators/collaborators.service';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
+import { CollaboratorRole } from '@prisma/client';
 
 @Injectable()
 export class CompaniesService {
@@ -43,18 +44,6 @@ export class CompaniesService {
     }
   }
 
-  async findOne(id: string) {
-    try {
-      return await this.prisma.company.findUnique({ where: { id } });
-    } catch (error) {
-      if (error instanceof Error) {
-        throw ErrorManager.createSignatureError(error.message);
-      } else {
-        throw ErrorManager.createSignatureError('An unexpected error occurred');
-      }
-    }
-  }
-
   async findByEmail(email: string) {
     return await this.prisma.company.findUnique({
       where: { email: email.toLocaleLowerCase().trim(), deletedAt: null },
@@ -70,6 +59,18 @@ export class CompaniesService {
       id,
       updatePasswordDto,
       userType,
+    );
+  }
+
+  async updateCollaboratorRole(
+    id: string,
+    companyId: string,
+    newRole: CollaboratorRole,
+  ) {
+    return await this.collaboratorsService.updateCollaboratorRole(
+      id,
+      companyId,
+      newRole,
     );
   }
 

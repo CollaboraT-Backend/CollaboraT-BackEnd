@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CollaboratorRole } from '@prisma/client';
+import { Collaborator, CollaboratorRole } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
 import { isNotEmpty } from 'class-validator';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
@@ -12,9 +12,9 @@ import validator from 'validator';
 import { CollaboratorFormatToExcel } from './dto/collaborator-format-to-excel.dto';
 import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { MailerService } from 'src/mailer/mailer.service';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class CollaboratorsService {
@@ -26,12 +26,9 @@ export class CollaboratorsService {
     private readonly authServices: AuthService,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
+    private readonly projectsServices: ProjectsService,
   ) {}
-  async create(
-    file: Express.Multer.File,
-    passwordToExcel: HasPasswordDto,
-    companyId: string,
-  ) {
+  async create(file: Express.Multer.File, companyId: string) {
     try {
       // verify if file exist or no it is empty
       this.filesService.verifyFile(file);
@@ -59,7 +56,7 @@ export class CollaboratorsService {
       const registeredUsers = await this.createUsers(rowsWithData, companyId);
 
       // Generate excel
-      return this.filesService.generateExcel(registeredUsers, passwordToExcel);
+      return this.filesService.generateExcel(registeredUsers);
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);
@@ -212,11 +209,51 @@ export class CollaboratorsService {
     );
   }
 
+  async updateCollaboratorRole(
+    id: string,
+    companyId: string,
+    newRole: CollaboratorRole,
+  ) {
+    try {
+      const collaboratorExists = await this.prisma.collaborator.findUnique({
+        where: { id },
+      });
+
+      if (!collaboratorExists) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'User to delete not found',
+        });
+      }
+
+      if (
+        newRole !== collaboratorExists.role &&
+        collaboratorExists.role === 'leader'
+      ) {
+        await this.isLeaderCurrently(collaboratorExists, companyId);
+      }
+
+      await this.prisma.collaborator.update({
+        where: { id, companyId, deletedAt: null },
+        data: { role: newRole },
+      });
+
+      return { success: true, message: 'User role updated successfully' };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      } else {
+        throw ErrorManager.createSignatureError('An unexpected error occurred');
+      }
+    }
+  }
+
   async findAllCollaboratorsByCompany(
     companyId: string,
   ): Promise<UserResponseFormatDto[]> {
     const collaborators = await this.prisma.collaborator.findMany({
       where: { companyId, deletedAt: null },
+      orderBy: { role: 'desc' },
     });
 
     return collaborators.map((collaborator) =>
@@ -226,17 +263,23 @@ export class CollaboratorsService {
 
   async delete(id: string, companyId: string) {
     try {
-      const result = await this.prisma.collaborator.update({
-        where: { id, companyId, deletedAt: null },
-        data: { deletedAt: new Date() },
+      const collaboratorExists = await this.prisma.collaborator.findUnique({
+        where: { id },
       });
 
-      if (!result) {
+      if (!collaboratorExists) {
         throw new ErrorManager({
           type: 'NOT_FOUND',
           message: 'User to delete not found',
         });
       }
+
+      await this.isLeaderCurrently(collaboratorExists, companyId);
+
+      await this.prisma.collaborator.update({
+        where: { id, companyId, deletedAt: null },
+        data: { deletedAt: new Date() },
+      });
 
       return { success: true, message: 'Collaborator deleted successfully' };
     } catch (error) {
@@ -246,5 +289,22 @@ export class CollaboratorsService {
         throw ErrorManager.createSignatureError('An unexpected error occurred');
       }
     }
+  }
+
+  private async isLeaderCurrently(user: Collaborator, companyId: string) {
+    if (user.role === 'leader') {
+      const leaderInProjects = await this.projectsServices.findAllByLeaderId(
+        user.id,
+        companyId,
+      );
+      if (leaderInProjects.length > 0) {
+        throw new ErrorManager({
+          type: 'CONFLICT',
+          message:
+            'User is currently a leader in one or more projects, operation is not allowed.',
+        });
+      }
+    }
+    return;
   }
 }
