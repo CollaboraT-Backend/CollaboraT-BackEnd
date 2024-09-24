@@ -3,6 +3,7 @@ import { CreateTeamCollaboratorDto } from './dto/create-team-collaborator.dto';
 import { UpdateTeamCollaboratorDto } from './dto/update-team-collaborator.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'src/prisma-service/prisma-service.service';
 
 //crear un endpoint y metodo para que la empresa pueda consultar el equipo de trabajo de sus proyectos, y que este traiga
 //los colaboradores miembros del equipo
@@ -16,7 +17,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class TeamCollaboratorsService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
   async create(createTeamCollaboratorDto: CreateTeamCollaboratorDto) {
     try {
       return await this.prisma.teamCollaborator.create({
