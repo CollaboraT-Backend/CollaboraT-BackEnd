@@ -13,7 +13,7 @@ export class OccupationsController {
   }
 
   @Get('tasks')
-  async getTasksByOccupation(@Query('occupation') occupationName: string) {
-    return this.occupationsService.getTasksByOccupation(occupationName);
+  async getTasksByOccupation(@Query('occupation') occupationName: number) {
+    return this.occupationsService.getCollaboratorsByOccupationId(occupationName);
   }
 }

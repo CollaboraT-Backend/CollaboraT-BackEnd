@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -19,7 +20,7 @@ import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 
-@UseGuards(JwtAuthGuard)
+
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
@@ -38,6 +39,14 @@ export class TasksController {
     return await this.tasksService.findAll();
   }
 
+  
+  //buscar todas las tareas por proyecto
+  @Get('projects')
+  async getTasksByOccupation(
+    @Query('projectId') projectId: string) {
+    return this.tasksService.findAllProjects(projectId);
+  }
+  
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.tasksService.findOne(id);
