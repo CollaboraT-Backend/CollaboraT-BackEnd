@@ -1,33 +1,47 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { PermissionRole } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
-export class CompanyResponseFormatDto {
-  @ApiProperty()
+export class UserResponseFormatDto {
   @IsUUID()
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   role: PermissionRole;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   nit: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  companyId: string;
+
+  @IsPositive()
+  @IsNotEmpty()
+  occupationId: number;
+
+  @IsObject()
+  @IsOptional()
+  company: object;
 
   @Exclude()
   password: string;

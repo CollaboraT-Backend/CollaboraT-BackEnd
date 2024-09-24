@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Body,
-  Patch,
-  Param,
-  UsePipes,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Body, Patch, Param, UseGuards } from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { PasswordComparisonPipe } from 'src/common/pipes/password-comparison.pipe';
 import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';

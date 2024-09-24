@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CompaniesService } from 'src/companies/companies.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
-import { CompanyResponseFormatDto } from 'src/companies/dto/company-response-format.dto';
+import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { validatePassword } from 'src/common/helpers/validate-password.helper';
@@ -14,7 +14,6 @@ import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { hashPassword } from 'src/common/helpers/hash-password.helper';
 import { ConfigService } from '@nestjs/config';
-import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,16 +29,12 @@ export class AuthService {
 
   async registerCompany(
     createCompanyDto: CreateCompanyDto,
-  ): Promise<CompanyResponseFormatDto> {
+  ): Promise<UserResponseFormatDto> {
     return this.companiesService.create(createCompanyDto);
   }
 
-  async registerCollaborators(
-    file: Express.Multer.File,
-    passwordToExcel: HasPasswordDto,
-    companyId: string,
-  ) {
-    return this.collaboratorsService.create(file, passwordToExcel, companyId);
+  async registerCollaborators(file: Express.Multer.File, companyId: string) {
+    return this.collaboratorsService.create(file, companyId);
   }
 
   async validateUser({
@@ -50,7 +45,6 @@ export class AuthService {
       //Search for user by email in collaborators
       let foundUser: Company | Collaborator | null =
         await this.collaboratorsService.findByEmail(email);
-
       // If not found in comllaborators, search in companies
       if (!foundUser) {
         foundUser = await this.companiesService.findByEmail(email);
@@ -143,7 +137,7 @@ export class AuthService {
       sub: user.id,
       role: user.role,
     };
-    const userToResponse = plainToClass(CompanyResponseFormatDto, user);
+    const userToResponse = plainToClass(UserResponseFormatDto, user);
     return {
       access_token: this.jwtService.sign(payload),
       user: userToResponse,

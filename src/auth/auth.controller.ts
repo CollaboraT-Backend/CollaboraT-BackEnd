@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
-import { CompanyResponseFormatDto } from 'src/companies/dto/company-response-format.dto';
+import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { Collaborator, Company } from '@prisma/client';
@@ -20,7 +20,6 @@ import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { Public } from 'src/common/decorators/auth-public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 import { CsvFilePipe } from 'src/common/pipes/csv-file.pipe';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 import { Rbac } from 'src/common/decorators/rbac.decorator';
@@ -35,7 +34,7 @@ export class AuthController {
   @Post('register/companies')
   async registerCompany(
     @Body() createCompanyDto: CreateCompanyDto,
-  ): Promise<CompanyResponseFormatDto> {
+  ): Promise<UserResponseFormatDto> {
     return await this.authService.registerCompany(createCompanyDto);
   }
 
@@ -45,13 +44,11 @@ export class AuthController {
   @Post('register/companies/:companyId/collaborators')
   async registerCollaborators(
     @UploadedFile('file', new CsvFilePipe()) file: Express.Multer.File,
-    @Body() hasPasswordDto: HasPasswordDto,
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Res() res: Response,
   ) {
     const generatedExcel = await this.authService.registerCollaborators(
       file,
-      hasPasswordDto,
       companyId,
     );
 
