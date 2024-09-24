@@ -102,12 +102,59 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
-  //buscar tareas por proyecto
-  async findAllProjects(projectId: string) {
+  //buscar tareas por proyecto y traer collaboratorAssigned
+  async findAllByProjects(projectId: string) {
     try {
       const allTask = await this.prisma.task.findMany({
         where: {projectId,
           deletedAt: null, // filtra las tareas que no estan eliminadas
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          dueDate: true,
+          startDate: true,
+          priority: true,
+          status: true,
+          projectId: true,
+          collaboratorAssignedId: true,
+          occupationId: true,
+          createdById: true,
+          collaboratorAssigned: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      if (!allTask.length) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Tasks not found',
+        });
+      }
+
+      return allTask;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(
+          `INTERNAL_SERVER_ERROR :: ${error.message}`,
+        );
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+  }
+   //buscar tareas por proyecto libres
+   async findAllCollaboratorUnassigned(projectId: string) {
+    try {
+      const allTask = await this.prisma.task.findMany({
+        where: {projectId,
+          deletedAt: null,
+          collaboratorAssigned:null // filtra las tareas que no estan eliminadas
         },
       });
 
