@@ -14,7 +14,7 @@ import { ProjectsModule } from 'src/projects/projects.module';
     forwardRef(() => CompaniesModule),
     FilesModule,
     OccupationsModule,
-    ProjectsModule,
+    forwardRef(() => ProjectsModule),
   ],
   controllers: [CollaboratorsController],
   providers: [CollaboratorsService, MailerService],
