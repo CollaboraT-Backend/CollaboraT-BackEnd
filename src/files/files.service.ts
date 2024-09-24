@@ -5,7 +5,6 @@ import { verifyFileExistsAndHasContent } from 'src/common/helpers/verify-file-ex
 import { validateKeysCsv } from 'src/common/helpers/validate-keys-csv.helper';
 import { verifyAllRowsHasNecessaryData } from 'src/common/helpers/verify-all-rows-has-necessary-data.helper';
 import { CollaboratorFormatToExcel } from 'src/collaborators/dto/collaborator-format-to-excel.dto';
-import { HasPasswordDto } from 'src/common/dtos/has-password.dto';
 import * as ExcelJs from 'exceljs';
 
 @Injectable()
@@ -26,10 +25,7 @@ export class FilesService {
     });
   }
 
-  generateExcel(
-    usersToExcel: CollaboratorFormatToExcel[],
-    hasPasswordDto: HasPasswordDto,
-  ) {
+  generateExcel(usersToExcel: CollaboratorFormatToExcel[]) {
     const workbook = new ExcelJs.Workbook();
 
     workbook.creator = 'Collabora-T Inc';
@@ -54,10 +50,6 @@ export class FilesService {
         createdAt: collaborator.createdAt,
       });
     }
-
-    sheet.protect(hasPasswordDto.password, {
-      selectLockedCells: true,
-    });
 
     return workbook;
   }

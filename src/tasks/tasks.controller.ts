@@ -15,7 +15,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
-import { Public } from 'src/common/decorators/auth-public.decorator';
 import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
@@ -29,7 +28,10 @@ export class TasksController {
   @Rbac(['leader'], 'canCreate', 4)
   @UseGuards(PermissionsGuard)
   @Post()
-  async create(@Body() createTaskDto: CreateTaskDto, @Req() req: Request): Promise<CreateTaskDto> {
+  async create(
+    @Body() createTaskDto: CreateTaskDto,
+    @Req() req: Request,
+  ): Promise<CreateTaskDto> {
     const user = req.user;
     return await this.tasksService.create(createTaskDto, user);
   }
@@ -53,7 +55,7 @@ export class TasksController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto ) {
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return await this.tasksService.update(id, updateTaskDto);
   }
 

@@ -6,9 +6,11 @@ import { ErrorManager } from '../common/filters/error-manager.filter';
 import { hashPassword } from '../common/helpers/hash-password.helper';
 import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
-import { CompanyResponseFormatDto } from './dto/company-response-format.dto';
+import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { AuthService } from '../auth/auth.service';
-import { validatePassword } from '../common/helpers/validate-password.helper';
+import { CollaboratorsService } from 'src/collaborators/collaborators.service';
+import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
+import { CollaboratorRole } from '@prisma/client';
 
 @Injectable()
 export class CompaniesService {
@@ -17,11 +19,12 @@ export class CompaniesService {
     private readonly configservice: ConfigService,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly collaboratorsService: CollaboratorsService,
   ) {}
 
   async create(
     createCompanyDto: CreateCompanyDto,
-  ): Promise<CompanyResponseFormatDto> {
+  ): Promise<UserResponseFormatDto> {
     try {
       createCompanyDto.password = await hashPassword(
         createCompanyDto.password,
@@ -31,19 +34,7 @@ export class CompaniesService {
       const newCompany = await this.prisma.company.create({
         data: createCompanyDto,
       });
-      return plainToInstance(CompanyResponseFormatDto, newCompany);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw ErrorManager.createSignatureError(error.message);
-      } else {
-        throw ErrorManager.createSignatureError('An unexpected error occurred');
-      }
-    }
-  }
-
-  async findOne(id: string) {
-    try {
-      return await this.prisma.company.findUnique({ where: { id } });
+      return plainToInstance(UserResponseFormatDto, newCompany);
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);
@@ -71,6 +62,18 @@ export class CompaniesService {
     );
   }
 
+  async updateCollaboratorRole(
+    id: string,
+    companyId: string,
+    newRole: CollaboratorRole,
+  ) {
+    return await this.collaboratorsService.updateCollaboratorRole(
+      id,
+      companyId,
+      newRole,
+    );
+  }
+
   async remove(id: string) {
     try {
       const companyDeleted = await this.prisma.company.update({
@@ -94,5 +97,16 @@ export class CompaniesService {
         throw ErrorManager.createSignatureError('An unexpected error occurred');
       }
     }
+  }
+
+  async findAllCollaborator(
+    user: PayloadToken,
+  ): Promise<UserResponseFormatDto[]> {
+    return await this.collaboratorsService.findAllCollaboratorsByCompany(
+      user.sub,
+    );
+  }
+  async deleteCollaborator(user: PayloadToken, collaboratorId: string) {
+    return await this.collaboratorsService.delete(collaboratorId, user.sub);
   }
 }
