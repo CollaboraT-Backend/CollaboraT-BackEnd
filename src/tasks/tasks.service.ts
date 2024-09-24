@@ -92,6 +92,32 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
+  //buscar tareas por proyecto
+  async findAllProjects(projectId: string) {
+    try {
+      const allTask = await this.prisma.task.findMany({
+        where: {projectId,
+          deletedAt: null, // filtra las tareas que no estan eliminadas
+        },
+      });
+
+      if (!allTask.length) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Tasks not found',
+        });
+      }
+
+      return allTask;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(
+          `INTERNAL_SERVER_ERROR :: ${error.message}`,
+        );
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+  }
 
   async findOne(id: string) {
     try {

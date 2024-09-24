@@ -29,35 +29,9 @@ export class OccupationsService {
   }
   //Una vez que tienes el ID de la ocupación, encontrar todos los colaboradores que tienen esa ocupación.
   async getCollaboratorsByOccupationId(occupationId: number) {
-    return this.prisma.collaborator.findMany({
+    return this.prisma.task.findMany({
       where: { occupationId },
     });
   }
 
-  async getTasksByOccupation(occupationName: string) {
-    // Paso 1: Obtener el ID de la ocupación
-    const occupationId = await this.prisma.occupation.findFirst({
-      where: { name: occupationName },
-    });
-
-    if (!occupationId) {
-      throw new Error('Ocupación no encontrada');
-    }
-
-    // Paso 2: Obtener los colaboradores con esa ocupación
-    const collaborators = await this.prisma.collaborator.findMany({
-      where: { occupationId: occupationId.id },
-    });
-
-    // Obtener los IDs de los colaboradores
-    const collaboratorIds = collaborators.map((c) => c.id);
-
-    // Paso 3: Obtener las tareas asignadas a esos colaboradores
-    return this.prisma.task.findMany({
-      where: {
-        collaboratorAssignedId: { in: collaboratorIds },
-        status: TaskStatus.pending,
-      },
-    });
-  }
 }
