@@ -15,7 +15,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ProjectsService } from 'src/projects/projects.service';
-import { ProjectsModule } from 'src/projects/projects.module';
 
 @Injectable()
 export class CollaboratorsService {
@@ -261,6 +260,10 @@ export class CollaboratorsService {
     return collaborators.map((collaborator) =>
       plainToClass(UserResponseFormatDto, collaborator),
     );
+  }
+
+  async finAllProjectsByLeader(leaderId: string, companyId: string) {
+    return this.projectsServices.findAllByLeaderId(leaderId, companyId);
   }
 
   async delete(id: string, companyId: string) {

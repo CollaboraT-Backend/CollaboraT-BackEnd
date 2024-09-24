@@ -1,9 +1,22 @@
-import { Controller, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Get,
+  Req,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { PasswordComparisonPipe } from 'src/common/pipes/password-comparison.pipe';
 import { UpdatePasswordDto } from 'src/common/dtos/update-password.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
+import { Rbac } from 'src/common/decorators/rbac.decorator';
+import { PermissionsGuard } from 'src/permissions/permissions.guard';
 
 @ApiTags('collaborators')
 @UseGuards(JwtAuthGuard)
@@ -23,5 +36,16 @@ export class CollaboratorsController {
       updatePasswordCollaboratorDto,
       'collaborator',
     );
+  }
+
+  @Rbac(['leader'], 'canGet', 3)
+  @UseGuards(PermissionsGuard)
+  @Get(':companyId/leader/projects')
+  async getLeaderProjects(
+    @Param('companyId', new ParseUUIDPipe()) companyId: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as PayloadToken;
+    await this.collaboratorsService.finAllProjectsByLeader(user.sub, companyId);
   }
 }

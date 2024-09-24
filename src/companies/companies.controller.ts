@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   ParseUUIDPipe,
+  Post,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { UpdatePasswordDto } from '../common/dtos/update-password.dto';
@@ -20,6 +21,7 @@ import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto'
 import { Request } from 'express';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
 import { CollaboratorRole } from '@prisma/client';
+import { CreateProjectDto } from 'src/projects/dto/create-project.dto';
 
 @ApiTags('companies')
 @UseGuards(JwtAuthGuard)
@@ -66,6 +68,32 @@ export class CompaniesController {
       user.sub,
       newRole,
     );
+  }
+
+  @Rbac(['company'], 'canGet', 3)
+  @UseGuards(PermissionsGuard)
+  @Get('projects')
+  async findAll(@Req() req: Request) {
+    const user = req.user as PayloadToken;
+    return await this.companyService.findAllProjects(user.sub);
+  }
+
+  @Rbac(['company'], 'canCreate', 3)
+  @UseGuards(PermissionsGuard)
+  @Post('projects')
+  async createProject(@Body() createProjectDto: CreateProjectDto) {
+    return await this.companyService.createProject(createProjectDto);
+  }
+
+  @Rbac(['company'], 'canDelete', 3)
+  @UseGuards(PermissionsGuard)
+  @Delete('projects/:projectId')
+  async deleteProject(
+    @Param('projectId') projectId: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as PayloadToken;
+    return await this.companyService.deleteProject(projectId, user.sub);
   }
 
   @Rbac(['company'], 'canDelete', 2)
