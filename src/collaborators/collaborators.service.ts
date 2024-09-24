@@ -15,6 +15,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserResponseFormatDto } from 'src/common/dtos/user-response-format.dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import { ProjectsService } from 'src/projects/projects.service';
+import { ProjectsModule } from 'src/projects/projects.module';
 
 @Injectable()
 export class CollaboratorsService {
@@ -26,6 +27,7 @@ export class CollaboratorsService {
     private readonly authServices: AuthService,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
+    @Inject(forwardRef(() => ProjectsService))
     private readonly projectsServices: ProjectsService,
   ) {}
   async create(file: Express.Multer.File, companyId: string) {
