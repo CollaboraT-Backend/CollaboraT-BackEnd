@@ -11,6 +11,8 @@ import { AuthService } from '../auth/auth.service';
 import { CollaboratorsService } from 'src/collaborators/collaborators.service';
 import { PayloadToken } from 'src/common/interfaces/auth/payload-token.interface';
 import { CollaboratorRole } from '@prisma/client';
+import { ProjectsService } from 'src/projects/projects.service';
+import { CreateProjectDto } from 'src/projects/dto/create-project.dto';
 
 @Injectable()
 export class CompaniesService {
@@ -20,6 +22,7 @@ export class CompaniesService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly collaboratorsService: CollaboratorsService,
+    private readonly projectsService: ProjectsService,
   ) {}
 
   async create(
@@ -108,5 +111,17 @@ export class CompaniesService {
   }
   async deleteCollaborator(user: PayloadToken, collaboratorId: string) {
     return await this.collaboratorsService.delete(collaboratorId, user.sub);
+  }
+
+  async createProject(createProjectDto: CreateProjectDto) {
+    return await this.projectsService.create(createProjectDto);
+  }
+
+  async findAllProjects(companyId: string) {
+    return await this.projectsService.findAll(companyId);
+  }
+
+  async deleteProject(id: string, companyId: string) {
+    return await this.projectsService.remove(id, companyId);
   }
 }

@@ -6,6 +6,7 @@ import { Project, ProjectStatus } from '@prisma/client';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { TeamCollaboratorsService } from 'src/team-collaborators/team-collaborators.service';
 import { CollaboratorsService } from 'src/collaborators/collaborators.service';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class ProjectsService {
@@ -14,6 +15,7 @@ export class ProjectsService {
     private readonly teamCollaboratorService: TeamCollaboratorsService,
     @Inject(forwardRef(() => CollaboratorsService))
     private readonly collaboratorService: CollaboratorsService,
+    private readonly mailerService: MailerService,
   ) {}
 
   //Al crear proyecto automaticamente despues con el id de este nuevo registro y el leader id que proporcionan para el
@@ -34,7 +36,8 @@ export class ProjectsService {
       }
 
       const foundLeader = usersOfCompany.find(
-        (user) => user.id === createProjectDto.leaderId,
+        (user) =>
+          user.id === createProjectDto.leaderId && user.role === 'leader',
       );
 
       if (!foundLeader) {
@@ -54,6 +57,23 @@ export class ProjectsService {
         projectId: result.id,
         collaboratorId: result.leaderId,
       });
+
+      //To send a notification to the assigned leader
+      const objectToprepare = {
+        to: foundLeader.email,
+        subject: `Task Assignment`,
+        message: `<p>Hola ${foundLeader.name}, te han asignado una tarea!</p>
+        <p>Felicidades te han asignado com lider al proyecto: <strong>${result.name}</strong></p>
+        <p><strong>Muchos exitos en este nuevo reto!</strong></p>
+        `,
+      };
+
+      const mailOptions = this.mailerService.prepareMail(objectToprepare);
+      await this.mailerService.sendMail(
+        mailOptions.to,
+        mailOptions.subject,
+        mailOptions.html,
+      );
 
       return result;
     } catch (error) {
@@ -88,8 +108,6 @@ export class ProjectsService {
     });
   }
 
-  //Crear metodo para empresa, puede ver cualquiera de sus proyectos
-  //Crear metodo para leader(collaborator), puede ver cualquiera de los proyectos en los que es lider
   async findOne(id: string) {
     try {
       const project = await this.prisma.project.findFirst({
@@ -117,13 +135,6 @@ export class ProjectsService {
     }
   }
 
-  //Solo las empresas pueden actualizar sus proyectos(permisologia)
-  //Si actualizan el lider
-  // - eliminar(softdelete) de team collaborator al usuario que era el lider hasta ese momento
-  // - actualizar proyecto
-  // - agregar el nuevo lider a la tabla team collaborator para el equipo de trabajo de ese proyecto correspondiente
-  // Si cambian quieren actualizar el estado a archived
-  // - eliminar(softdelete) de team collaborator al usuario que era el lider hasta ese momento
   async update(id: string, updateProjectDto: UpdateProjectDto) {
     try {
       const updatedProject = await this.prisma.project.update({
@@ -138,7 +149,7 @@ export class ProjectsService {
         });
       }
 
-      return updatedProject;
+      return { success: true, message: 'Project updated successfully' };
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);
@@ -148,10 +159,10 @@ export class ProjectsService {
   }
 
   //Solo las empresas pueden eliminar sus proyectos(permisologia)
-  async remove(id: string) {
+  async remove(id: string, companyId: string) {
     try {
       const projectDeleted = await this.prisma.project.update({
-        where: { id, deletedAt: null },
+        where: { id, companyId, deletedAt: null },
         data: { status: ProjectStatus.archived, deletedAt: new Date() },
       });
 
