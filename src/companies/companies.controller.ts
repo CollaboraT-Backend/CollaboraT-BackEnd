@@ -57,7 +57,7 @@ export class CompaniesController {
   @Patch('collaborator/:collaboratorId/role')
   async updateCollaboratorRole(
     @Param('collaboratorId', new ParseUUIDPipe()) collaboratorId: string,
-    @Body() newRole: CollaboratorRole,
+    @Body('newRole') newRole: CollaboratorRole,
     @Req() req: Request,
   ) {
     const user = req.user as PayloadToken;

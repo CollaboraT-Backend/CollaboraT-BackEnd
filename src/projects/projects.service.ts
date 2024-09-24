@@ -4,16 +4,57 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { Project, ProjectStatus } from '@prisma/client';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
+import { TeamCollaboratorsService } from 'src/team-collaborators/team-collaborators.service';
+import { CollaboratorsService } from 'src/collaborators/collaborators.service';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teamCollaboratorService: TeamCollaboratorsService,
+    private readonly collaboratorService: CollaboratorsService,
+  ) {}
 
   //Al crear proyecto automaticamente despues con el id de este nuevo registro y el leader id que proporcionan para el
   //proyecto(project) se debe crear/agregar el primer miembro de equipo(agregar en team collaborator)
   async create(createProjectDto: CreateProjectDto) {
     try {
-      return await this.prisma.project.create({ data: createProjectDto });
+      //verificar si el usuario indicado si es lider
+      const usersOfCompany =
+        await this.collaboratorService.findAllCollaboratorsByCompany(
+          createProjectDto.companyId,
+        );
+
+      if (!usersOfCompany.length) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'User to assign as leader not found',
+        });
+      }
+
+      const foundLeader = usersOfCompany.find(
+        (user) => user.id === createProjectDto.leaderId,
+      );
+
+      if (!foundLeader) {
+        throw new ErrorManager({
+          type: 'CONFLICT',
+          message: 'User to assign is not a leader',
+        });
+      }
+
+      //create project
+      const result = await this.prisma.project.create({
+        data: createProjectDto,
+      });
+
+      //create leader as a team member
+      await this.teamCollaboratorService.create({
+        projectId: result.id,
+        collaboratorId: result.leaderId,
+      });
+
+      return result;
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(
@@ -24,8 +65,6 @@ export class ProjectsService {
     }
   }
 
-  //Crear metodo para empresa, puede ver/obtener unicamente todos sus proyectos
-  //Crear metodo para leader(collaborator), donde puede ver/obtener todos los proyectos en los que es lider
   //Crear metodo para collaborator, donde puede ver/obtener todos los proyectos en los que es parte del equipo de trabajo
   async findAll(companyId: string): Promise<Project[] | null> {
     try {
