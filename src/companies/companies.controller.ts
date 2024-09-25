@@ -29,7 +29,7 @@ import { CreateProjectDto } from 'src/projects/dto/create-project.dto';
 export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) {}
 
-  @Rbac(['company'], 'canGet', 2)
+  @Rbac(['company', 'leader'], 'canGet', 2)
   @UseGuards(PermissionsGuard)
   @Get('/collaborators')
   async findAllCollaborators(

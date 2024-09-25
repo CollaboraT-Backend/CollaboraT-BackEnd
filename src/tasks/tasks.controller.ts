@@ -14,13 +14,11 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 import { UpdateStatusDto } from './dto/update-status.dto';
 
-@UseGuards(JwtAuthGuard)
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
@@ -37,28 +35,7 @@ export class TasksController {
     return await this.tasksService.create(createTaskDto, user);
   }
 
-  @Get()
-  async findAll() {
-    return await this.tasksService.findAll();
-  }
-
-  //buscar todas las tareas por proyecto
-  @Get('projects')
-  async getTasksByProjects(@Query('projectId') projectId: string) {
-    return this.tasksService.findAllByProjects(projectId);
-  }
-  
-  //buscar todas las tareas por proyecto y collaboratorAssigned:null
-  @Get('collaborator')
-  async getTasksByCollaborator(@Query('projectId') projectId: string) {
-    return this.tasksService.findAllCollaboratorUnassigned(projectId);
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.tasksService.findOne(id);
-  }
-  @Get('tasks')
+  @Get('by-occupations')
   async getTasksByOccupation(
     @Query('occupation') occupationId: number,
     @Query('projectId') projectId: string,
@@ -68,7 +45,26 @@ export class TasksController {
       projectId,
     );
   }
-  @Patch()
+
+  //buscar todas las tareas por proyecto
+  @Get('projects')
+  async getTasksByProjects(@Query('projectId') projectId: string) {
+    return this.tasksService.findAllByProjects(projectId);
+  }
+
+  //buscar todas las tareas por proyecto y collaboratorAssigned:null
+  @Get('collaborator')
+  async getTasksByCollaborator(@Query('projectId') projectId: string) {
+    return this.tasksService.findAllCollaboratorUnassigned(projectId);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    console.log('Fetching tasks for one');
+    return await this.tasksService.findOne(id);
+  }
+
+  @Patch('take-task')
   async assignFreetask(@Body() id: any, @Req() request: Request) {
     const user = request.user;
     return await this.tasksService.assignFreetask(id, user);
