@@ -266,6 +266,10 @@ export class CollaboratorsService {
     return this.projectsServices.findAllByLeaderId(leaderId, companyId);
   }
 
+  async findAllProjectsByCollaborator(userId: string) {
+    return await this.projectsServices.findAllProjectsForCollaborators(userId);
+  }
+
   async delete(id: string, companyId: string) {
     try {
       const collaboratorExists = await this.prisma.collaborator.findUnique({
