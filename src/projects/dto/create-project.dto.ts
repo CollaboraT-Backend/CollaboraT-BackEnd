@@ -1,9 +1,11 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
   IsUUID,
   IsOptional,
-  IsDate} from 'class-validator';
+  IsDate,
+} from 'class-validator';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -18,6 +20,7 @@ export class CreateProjectDto {
   @IsString()
   goals?: string;
 
+  @Type(() => Date)
   @IsNotEmpty()
   @IsDate()
   deadline: Date;
@@ -25,4 +28,8 @@ export class CreateProjectDto {
   @IsNotEmpty()
   @IsUUID()
   companyId: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  leaderId: string;
 }

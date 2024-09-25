@@ -10,14 +10,14 @@ async function bootstrap() {
 
   //Configure cors options
   const corsOptionsDelegate = (req: Request, callback: any) => {
-    const allowList = [];
-    let corsOptions;
+    const allowList = ['http://localhost:3000'];
+    let corsOptions: { origin: boolean };
     //evalue origin of request
     if (allowList.indexOf(req.headers['origin']) !== -1) {
       //enable access
       corsOptions = { origin: true };
     } else {
-      //deny access access
+      //access denied
       corsOptions = { origin: false };
     }
     callback(null, corsOptions);
@@ -49,6 +49,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('collaborat/api/v1/docs', app, document);
-  await app.listen(3000);
+  await app.listen(4000);
 }
 bootstrap();

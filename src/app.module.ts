@@ -6,6 +6,13 @@ import { ProjectsModule } from './projects/projects.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentsModule } from './comments/comments.module';
 import { AuthModule } from './auth/auth.module';
+import { S3Module } from './s3/s3.module';
+import { ProfilePicturesModule } from './profile-pictures/profile-pictures.module';
+import { OccupationsModule } from './occupations/occupations.module';
+import { FilesModule } from './files/files.module';
+import { CollaboratorsModule } from './collaborators/collaborators.module';
+import { TeamCollaboratorsModule } from './team-collaborators/team-collaborators.module';
+import { MailerService } from './mailer/mailer.service';
 
 @Module({
   imports: [
@@ -16,8 +23,14 @@ import { AuthModule } from './auth/auth.module';
     ProjectsModule,
     CommentsModule,
     AuthModule,
-
+    S3Module,
+    ProfilePicturesModule,
+    OccupationsModule,
+    FilesModule,
+    CollaboratorsModule,
+    TeamCollaboratorsModule,
   ],
   controllers: [],
+  providers: [MailerService],
 })
 export class AppModule {}
