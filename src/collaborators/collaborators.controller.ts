@@ -38,6 +38,16 @@ export class CollaboratorsController {
     );
   }
 
+  @Rbac(['collaborator'], 'canGet', 3)
+  @UseGuards(PermissionsGuard)
+  @Get('projects')
+  async getCollaboratorProjects(@Req() req: Request) {
+    const user = req.user as PayloadToken;
+    return await this.collaboratorsService.findAllProjectsByCollaborator(
+      user.sub,
+    );
+  }
+
   @Rbac(['leader'], 'canGet', 3)
   @UseGuards(PermissionsGuard)
   @Get(':companyId/leader/projects')
@@ -46,6 +56,9 @@ export class CollaboratorsController {
     @Req() req: Request,
   ) {
     const user = req.user as PayloadToken;
-    await this.collaboratorsService.finAllProjectsByLeader(user.sub, companyId);
+    return await this.collaboratorsService.finAllProjectsByLeader(
+      user.sub,
+      companyId,
+    );
   }
 }

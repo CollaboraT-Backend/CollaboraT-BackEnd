@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
-  Query
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('tasks')
@@ -41,23 +42,36 @@ export class TasksController {
     return await this.tasksService.findAll();
   }
 
-  
   //buscar todas las tareas por proyecto
   @Get('projects')
-  async getTasksByOccupation(
-    @Query('projectId') projectId: string) {
+  async getTasksByProjects(@Query('projectId') projectId: string) {
     return this.tasksService.findAllByProjects(projectId);
   }
+  
   //buscar todas las tareas por proyecto y collaboratorAssigned:null
   @Get('collaborator')
-  async getTasksByCollaborator(
-    @Query('projectId') projectId: string) {
+  async getTasksByCollaborator(@Query('projectId') projectId: string) {
     return this.tasksService.findAllCollaboratorUnassigned(projectId);
   }
-  
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.tasksService.findOne(id);
+  }
+  @Get('tasks')
+  async getTasksByOccupation(
+    @Query('occupation') occupationId: number,
+    @Query('projectId') projectId: string,
+  ) {
+    return this.tasksService.getAvailableTaskByOccupationId(
+      occupationId,
+      projectId,
+    );
+  }
+  @Patch()
+  async assignFreetask(@Body() id: any, @Req() request: Request) {
+    const user = request.user;
+    return await this.tasksService.assignFreetask(id, user);
   }
 
   @Patch(':id')
@@ -65,10 +79,15 @@ export class TasksController {
     return await this.tasksService.update(id, updateTaskDto);
   }
 
-  @Patch()
-  async assignFreetask(@Body() id: any, @Req() request: Request) {
-    const user = request.user
-    return await this.tasksService.assignFreetask(id, user);
+  @Patch('status/:id')
+  async updateState(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateStatusDto,
+    @Req() req: Request,
+  ) {
+    const user = req.user;
+    console.log(user);
+    return await this.tasksService.updateState(id, updateStatusDto, user);
   }
 
   @Delete(':id')

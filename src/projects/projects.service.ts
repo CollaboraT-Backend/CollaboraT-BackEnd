@@ -108,6 +108,28 @@ export class ProjectsService {
     });
   }
 
+  async findAllProjectsForCollaborators(userId: string) {
+    // Obtener las tareas del usuario
+    const tasks = await this.prisma.task.findMany({
+      where: { collaboratorAssignedId: userId },
+      include: {
+        project: true, // Incluir la relación con el proyecto
+      },
+    });
+
+    // Extraer los proyectos únicos de las tareas
+    const uniqueProjectIds = [...new Set(tasks.map((task) => task.project.id))];
+
+    // Obtener los proyectos basados en los IDs únicos
+    const projects = await this.prisma.project.findMany({
+      where: {
+        id: { in: uniqueProjectIds },
+      },
+    });
+
+    return projects;
+  }
+
   async findOne(id: string) {
     try {
       const project = await this.prisma.project.findFirst({

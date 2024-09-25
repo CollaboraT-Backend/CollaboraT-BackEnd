@@ -4,6 +4,8 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
 import { MailerService } from 'src/mailer/mailer.service';
+import { UpdateStatusDto } from './dto/update-status.dto';
+import { TaskStatus } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
@@ -106,7 +108,8 @@ export class TasksService {
   async findAllByProjects(projectId: string) {
     try {
       const allTask = await this.prisma.task.findMany({
-        where: {projectId,
+        where: {
+          projectId,
           deletedAt: null, // filtra las tareas que no estan eliminadas
         },
         select: {
@@ -148,13 +151,14 @@ export class TasksService {
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
   }
-   //buscar tareas por proyecto libres
-   async findAllCollaboratorUnassigned(projectId: string) {
+  //buscar tareas por proyecto libres
+  async findAllCollaboratorUnassigned(projectId: string) {
     try {
       const allTask = await this.prisma.task.findMany({
-        where: {projectId,
+        where: {
+          projectId,
           deletedAt: null,
-          collaboratorAssigned:null // filtra las tareas que no estan eliminadas
+          collaboratorAssigned: null, // filtra las tareas que no estan eliminadas
         },
       });
 
@@ -251,48 +255,92 @@ export class TasksService {
     }
   }
 
-  async assignFreetask(taskId: {id:string}, user: any): Promise<CreateTaskDto> {
+  async assignFreetask(
+    taskId: { id: string },
+    user: any,
+  ): Promise<CreateTaskDto> {
     try {
-      
-      const taskToEdit = await this.prisma.task.findUnique({where: {id: taskId.id}});
+      const taskToEdit = await this.prisma.task.findUnique({
+        where: { id: taskId.id },
+      });
       if (!taskToEdit) {
         throw new ErrorManager({
           type: 'NOT_FOUND',
           message: 'Task not found',
         });
-    }
-  
-    const collaborator = await this.prisma.collaborator.findUnique({where: {id: user.sub}})
-    console.log(collaborator)
-  
-    if (taskToEdit.occupationId !== collaborator.occupationId) {
-      throw new ErrorManager({
-        type: 'FORBIDDEN',
-        message: 'You are not authorized to assign yourself this kind of tasks!',
+      }
+
+      const collaborator = await this.prisma.collaborator.findUnique({
+        where: { id: user.sub },
       });
-    }
-  
-  const newTask = {
-    title: taskToEdit.title,
-    description: taskToEdit.description,
-    dueDate: taskToEdit.dueDate,
-    startDate: taskToEdit.startDate,
-    priority: taskToEdit.priority,
-    projectId: taskToEdit.projectId,
-    occupationId: taskToEdit.occupationId,
-    collaboratorAssignedId: user.sub,
-    createdById: taskToEdit.createdById,
-  }
-  
-  return await this.prisma.task.update({where: { id:taskId.id }, data: newTask});
+      console.log(collaborator);
+
+      if (taskToEdit.occupationId !== collaborator.occupationId) {
+        throw new ErrorManager({
+          type: 'FORBIDDEN',
+          message:
+            'You are not authorized to assign yourself this kind of tasks!',
+        });
+      }
+
+      const newTask = {
+        title: taskToEdit.title,
+        description: taskToEdit.description,
+        dueDate: taskToEdit.dueDate,
+        startDate: taskToEdit.startDate,
+        priority: taskToEdit.priority,
+        projectId: taskToEdit.projectId,
+        occupationId: taskToEdit.occupationId,
+        collaboratorAssignedId: user.sub,
+        createdById: taskToEdit.createdById,
+      };
+
+      return await this.prisma.task.update({
+        where: { id: taskId.id },
+        data: newTask,
+      });
     } catch (error) {
       if (error instanceof Error) {
         throw ErrorManager.createSignatureError(error.message);
       }
       throw ErrorManager.createSignatureError('An unexpected error occurred');
     }
+  }
+  //update state completed
+  async updateState(id: string, updateStatusDto: UpdateStatusDto, user: any) {
+    try {
+      const updatedTask = await this.prisma.task.update({
+        where: { id, collaboratorAssignedId: user.sub, deletedAt: null },
+        data: updateStatusDto,
+      });
 
-};
-
-//another task or whatever
+      if (!updatedTask) {
+        throw new ErrorManager({
+          type: 'NOT_FOUND',
+          message: 'Task not found or user not asssigned to this task',
+        });
+      }
+      return updatedTask;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw ErrorManager.createSignatureError(error.message);
+      }
+      throw ErrorManager.createSignatureError('An unexpected error occurred');
+    }
+  }
+  //buscar todas las tareas deacuerdo a la ocupacion
+  async getAvailableTaskByOccupationId(
+    occupationId: number,
+    projectId: string,
+  ) {
+    return this.prisma.task.findMany({
+      where: {
+        occupationId,
+        projectId,
+        status: TaskStatus.pending,
+        collaboratorAssignedId: null,
+      },
+    });
+  }
+  //another task or whatever
 }
