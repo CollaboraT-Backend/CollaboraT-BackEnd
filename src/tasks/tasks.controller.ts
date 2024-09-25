@@ -18,7 +18,9 @@ import { Rbac } from 'src/common/decorators/rbac.decorator';
 import { Request } from 'express';
 import { PermissionsGuard } from 'src/permissions/permissions.guard';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
@@ -35,6 +37,8 @@ export class TasksController {
     return await this.tasksService.create(createTaskDto, user);
   }
 
+  @Rbac(['company', 'leader', 'collaborator'], 'canGet', 4)
+  @UseGuards(PermissionsGuard)
   @Get('by-occupations')
   async getTasksByOccupation(
     @Query('occupation') occupationId: number,
@@ -47,34 +51,38 @@ export class TasksController {
   }
 
   //buscar todas las tareas por proyecto
+  @Rbac(['company', 'leader', 'collaborator'], 'canGet', 4)
+  @UseGuards(PermissionsGuard)
   @Get('projects')
   async getTasksByProjects(@Query('projectId') projectId: string) {
     return this.tasksService.findAllByProjects(projectId);
   }
 
   //buscar todas las tareas por proyecto y collaboratorAssigned:null
+  @Rbac(['company', 'leader'], 'canGet', 4)
+  @UseGuards(PermissionsGuard)
   @Get('collaborator')
   async getTasksByCollaborator(@Query('projectId') projectId: string) {
     return this.tasksService.findAllCollaboratorUnassigned(projectId);
   }
 
+  @Rbac(['company', 'leader', 'collaborator'], 'canGetOne', 4)
+  @UseGuards(PermissionsGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    console.log('Fetching tasks for one');
     return await this.tasksService.findOne(id);
   }
 
+  @Rbac(['collaborator'], 'canUpdate', 4)
+  @UseGuards(PermissionsGuard)
   @Patch('take-task')
   async assignFreetask(@Body() id: any, @Req() request: Request) {
     const user = request.user;
     return await this.tasksService.assignFreetask(id, user);
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return await this.tasksService.update(id, updateTaskDto);
-  }
-
+  @Rbac(['leader', 'collaborator'], 'canUpdate', 4)
+  @UseGuards(PermissionsGuard)
   @Patch('status/:id')
   async updateState(
     @Param('id') id: string,
@@ -86,6 +94,15 @@ export class TasksController {
     return await this.tasksService.updateState(id, updateStatusDto, user);
   }
 
+  @Rbac(['leader'], 'canUpdate', 4)
+  @UseGuards(PermissionsGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+    return await this.tasksService.update(id, updateTaskDto);
+  }
+
+  @Rbac(['leader'], 'canDelete', 4)
+  @UseGuards(PermissionsGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.tasksService.remove(id);

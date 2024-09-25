@@ -1,7 +1,9 @@
-import { Controller, Get, Query} from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { OccupationsService } from './occupations.service';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('occupations')
 @Controller('occupations')
 export class OccupationsController {
@@ -10,10 +12,5 @@ export class OccupationsController {
   @Get()
   findAll() {
     return this.occupationsService.findAll();
-  }
-
-  @Get('tasks')
-  async getTasksByOccupation(@Query('occupation') occupationName: number) {
-    return this.occupationsService.getCollaboratorsByOccupationId(occupationName);
   }
 }

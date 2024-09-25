@@ -231,7 +231,7 @@ export class CollaboratorsService {
         newRole !== collaboratorExists.role &&
         collaboratorExists.role === 'leader'
       ) {
-        await this.isLeaderCurrently(collaboratorExists, companyId);
+        await this.isLeaderCurrently(collaboratorExists);
       }
 
       await this.prisma.collaborator.update({
@@ -262,8 +262,8 @@ export class CollaboratorsService {
     );
   }
 
-  async finAllProjectsByLeader(leaderId: string, companyId: string) {
-    return this.projectsServices.findAllByLeaderId(leaderId, companyId);
+  async finAllProjectsByLeader(leaderId: string) {
+    return this.projectsServices.findAllByLeaderId(leaderId);
   }
 
   async findAllProjectsByCollaborator(userId: string) {
@@ -283,7 +283,7 @@ export class CollaboratorsService {
         });
       }
 
-      await this.isLeaderCurrently(collaboratorExists, companyId);
+      await this.isLeaderCurrently(collaboratorExists);
 
       await this.prisma.collaborator.update({
         where: { id, companyId, deletedAt: null },
@@ -300,11 +300,10 @@ export class CollaboratorsService {
     }
   }
 
-  private async isLeaderCurrently(user: Collaborator, companyId: string) {
+  private async isLeaderCurrently(user: Collaborator) {
     if (user.role === 'leader') {
       const leaderInProjects = await this.projectsServices.findAllByLeaderId(
         user.id,
-        companyId,
       );
       if (leaderInProjects.length > 0) {
         throw new ErrorManager({

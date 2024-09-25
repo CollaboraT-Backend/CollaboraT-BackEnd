@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma-service/prisma-service.service';
 import { ErrorManager } from 'src/common/filters/error-manager.filter';
-import { TaskStatus } from '@prisma/client';
 
 @Injectable()
 export class OccupationsService {
@@ -27,11 +26,10 @@ export class OccupationsService {
     });
     return occupation ? occupation.id : null;
   }
-  //Una vez que tienes el ID de la ocupación, encontrar todos los colaboradores que tienen esa ocupación.
-  async getCollaboratorsByOccupationId(occupationId: number) {
+
+  async getTaskByOccupationId(occupationId: number) {
     return this.prisma.task.findMany({
       where: { occupationId },
     });
   }
-
 }

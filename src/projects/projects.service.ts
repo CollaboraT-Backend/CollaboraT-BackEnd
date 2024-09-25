@@ -102,9 +102,9 @@ export class ProjectsService {
     }
   }
 
-  async findAllByLeaderId(leaderId: string, companyId: string) {
+  async findAllByLeaderId(leaderId: string) {
     return await this.prisma.project.findMany({
-      where: { leaderId, companyId, deletedAt: null },
+      where: { leaderId, deletedAt: null },
     });
   }
 

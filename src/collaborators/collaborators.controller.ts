@@ -6,7 +6,6 @@ import {
   UseGuards,
   Get,
   Req,
-  ParseUUIDPipe,
 } from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { PasswordComparisonPipe } from 'src/common/pipes/password-comparison.pipe';
@@ -24,6 +23,8 @@ import { PermissionsGuard } from 'src/permissions/permissions.guard';
 export class CollaboratorsController {
   constructor(private readonly collaboratorsService: CollaboratorsService) {}
 
+  @Rbac(['leader', 'collaborator'], 'canUpdate', 2)
+  @UseGuards(PermissionsGuard)
   @Patch('password/:id')
   async updateCollaboratorPassword(
     @Param('id') id: string,
@@ -50,15 +51,9 @@ export class CollaboratorsController {
 
   @Rbac(['leader'], 'canGet', 3)
   @UseGuards(PermissionsGuard)
-  @Get(':companyId/leader/projects')
-  async getLeaderProjects(
-    @Param('companyId', new ParseUUIDPipe()) companyId: string,
-    @Req() req: Request,
-  ) {
+  @Get('leader/projects')
+  async getLeaderProjects(@Req() req: Request) {
     const user = req.user as PayloadToken;
-    return await this.collaboratorsService.finAllProjectsByLeader(
-      user.sub,
-      companyId,
-    );
+    return await this.collaboratorsService.finAllProjectsByLeader(user.sub);
   }
 }
