@@ -21,6 +21,12 @@ Tambien, agregar los siguientes parametros, de valor puedes poner el valor que q
 
 <img width="494" alt="image" src="https://github.com/user-attachments/assets/aa13e083-92e5-4af1-9965-8f4aa4e99f9c">
 
+tambien agregar las siguientes variables, de preferencia crear un propio bucket de S3 AWS y crear un usuario de IAM para que pueda entrar sin problema de las politicas del bucket
+
+<img width="407" alt="image" src="https://github.com/user-attachments/assets/c6ec2b0d-959e-4fe0-bdda-09c5455bd762">
+
+
+
 
 despues de haber creado la base de datos, desde cero usa el comando `npx prisma migrate deploy`. Antes de este, asegurate de no tener nada en la carpeta migrations de prisma
 
